@@ -31,24 +31,8 @@
       "csp": "default-src 'self' ipc: http://ipc.localhost; img-src 'self' asset: http://asset.localhost",
       "assetProtocol": {
         "enable": true,
-        "scope": [
-          "$APPDATA/*",
-          "$DATA/*",
-          "$LOCALDATA/*",
-          "$DESKTOP/*",
-          "$DOCUMENT/*",
-          "$DOWNLOAD/*",
-          "$HOME/*",
-          "$PICTURE/*",
-          "$PUBLIC/*",
-          "$VIDEO/*",
-          "$APPCONFIG/*",
-          "$RESOURCE/*"
-        ]
-      },
-      "dangerousDisableAssetCspModification": false,
-      "dangerousRemoteDomainIpcAccess": [],
-      "freezePrototype": false
+        "scope": ["**"]
+      }
     },
     "windows": [
       {
