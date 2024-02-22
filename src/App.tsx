@@ -7,6 +7,7 @@ import { Dragabale } from "./components/Draggable";
 import { openImage } from "./lib/open-image";
 import { Checkbox } from "./components/ui/checkbox";
 import { ResizeSlider } from "./components/ResizeSlider";
+import { invoke } from "@tauri-apps/api/core";
 
 function App() {
   const [scale, setScale] = createSignal([100]);
@@ -60,6 +61,11 @@ function App() {
 
   const finalScale = () => parseFloat((scale()[0] / 100).toFixed(1));
 
+  async function greetFe(name: string) {
+    let names: string = await invoke("greet", { name: name });
+    setFolderSrc(names);
+  }
+
   return (
     <div class="flex min-h-screen flex-col justify-center gap-6 bg-neutral-800 text-center text-neutral-200">
       {imageBg().length > 0 && (
@@ -90,7 +96,7 @@ function App() {
         </div>
       )}
 
-      {/* <p class="terxt-3xl p-6 text-neutral-300">Fast Image Watermark</p> */}
+      {/* <p class="p-6 text-3xl text-neutral-300">Stempel</p> */}
 
       <h1 class="h-auto w-auto text-center text-4xl font-semibold text-neutral-50">
         path dir : {folderSrc()}
@@ -99,7 +105,9 @@ function App() {
       <div class="flex flex-col items-center justify-center space-y-4 p-10">
         <Button
           onClick={() =>
-            openImage(setBaseLoc, setImageBg, setFolderSrc, "base")
+            // openImage(setBaseLoc, setImageBg, setFolderSrc, "base")
+
+            greetFe("calista")
           }
         >
           Open Image
