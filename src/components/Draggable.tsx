@@ -9,15 +9,8 @@ export const Dragabale: Component<DragEL> = (props) => {
   // {`transition-all duration-700 will-change-[filter] hover:drop-shadow-[0_0_32px_#24c8db] `}
   const options: DragOptions = {
     bounds: "parent",
-    onDragEnd: ({ rootNode }) => {
-      const { bx, by } = props.coordinateBase;
-
-      const { x, y } = rootNode.getBoundingClientRect();
-
-      const positionX = bx + x;
-      const positionY = by - y;
-
-      props.setCoordinate({ x: positionX, y: positionY });
+    onDragEnd: ({ offsetX, offsetY }) => {
+      props.setCoordinate({ x: offsetX, y: offsetY });
     },
   };
 
@@ -27,8 +20,11 @@ export const Dragabale: Component<DragEL> = (props) => {
     const { w, h } = dimension();
     if (w === 0) return;
 
+    console.log("scaleVal", props.scaleVal);
+
     const sw = parseFloat((w * props.scaleVal).toFixed(1));
     const sh = parseFloat((h * props.scaleVal).toFixed(1));
+    console.log({ sw, sh });
 
     refDrag.style.width = sw + "px";
     refDrag.style.height = sh + "px";
@@ -40,7 +36,7 @@ export const Dragabale: Component<DragEL> = (props) => {
       use:draggable={options}
       src={props.waterImg}
       ref={setDragRef}
-      class="absolute left-0 top-0 outline outline-1 transition-transform duration-75"
+      class="absolute left-0 top-0 outline-dashed outline-1 transition-transform duration-75"
       alt="Tauri logo"
       onLoad={(ev) => {
         const { width, height } = window.getComputedStyle(ev.target);

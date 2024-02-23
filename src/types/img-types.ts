@@ -1,13 +1,15 @@
 import { Setter, type JSX } from "solid-js";
 
 export type DimensionType = { w: number; h: number };
+type posBase = { left: number; right: number };
+export type DimPos = posBase & DimensionType;
 export type DragEL = {
   children?: JSX.Element;
   scaleVal: number;
   setScaledDimension: Setter<DimensionType>;
   setCoordinate: Setter<{ x: number; y: number }>;
+  baseCoor: DimPos;
   waterImg: string;
-  coordinateBase: { bx: number; by: number };
 };
 
 export type InvokeParamsType = {

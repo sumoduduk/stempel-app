@@ -29,8 +29,6 @@ export async function openImage(
     setFolderSrc(par);
   }
   setLoc(imageLoc.path);
-  console.log("path ", imageLoc.path);
   const image = convertFileSrc(imageLoc.path);
-  console.log({ image });
   setImage(image);
 }
