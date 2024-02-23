@@ -147,6 +147,13 @@
 			path = Externals;
 			sourceTree = "<group>";
 		};
+		"TEMP_F07EBF70-E094-4A19-AD65-3BB809BDB4C9" /* arm64-sim */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "arm64-sim";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */

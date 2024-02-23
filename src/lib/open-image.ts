@@ -13,6 +13,7 @@ export async function openImage(
   let imageLoc;
   if (typeImage == "base") {
     imageLoc = await getImages();
+    console.log({ imageLoc });
   } else {
     imageLoc = await getWatermarkImage();
   }

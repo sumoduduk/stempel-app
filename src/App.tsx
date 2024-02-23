@@ -105,9 +105,7 @@ function App() {
       <div class="flex flex-col items-center justify-center space-y-4 p-10">
         <Button
           onClick={() =>
-            // openImage(setBaseLoc, setImageBg, setFolderSrc, "base")
-
-            greetFe("calista")
+            openImage(setBaseLoc, setImageBg, setFolderSrc, "base")
           }
         >
           Open Image
