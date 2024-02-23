@@ -2,20 +2,20 @@ import { createEffect, createSignal } from "solid-js";
 
 import { Button } from "./components/ui/button";
 import { convInt, startInvoke } from "./lib/utils";
-import { DimPos, DimensionType, InvokeParamsType } from "./types/img-types";
+import { DimensionType, InvokeParamsType } from "./types/img-types";
 import { Dragabale } from "./components/Draggable";
 import { openImage } from "./lib/open-image";
 import { Checkbox } from "./components/ui/checkbox";
 import { ResizeSlider } from "./components/ResizeSlider";
 import { convertFileSrc } from "@tauri-apps/api/core";
 
+import baseState from "./state/base-state";
+
 function App() {
   const [scale, setScale] = createSignal([100]);
-  const [baseDimension, setBaseDimension] = createSignal<DimPos>({
+  const [baseDimension, setBaseDimension] = createSignal<DimensionType>({
     w: 0,
     h: 0,
-    left: 0,
-    right: 0,
   });
   const [scaledDimension, setScaledDimension] = createSignal<DimensionType>({
     w: 0,
@@ -24,12 +24,19 @@ function App() {
   const [coordinate, setCoordinate] = createSignal({ x: 0, y: 0 });
   const [baseLoc, setBaseLoc] = createSignal<string>("");
   const [imageBg, setImageBg] = createSignal<string>(
-    convertFileSrc("/home/calista/Pictures/img-robo/00017-3508801777.png"),
+    convertFileSrc("/home/calista/Pictures/neon.png"),
   );
   const [wtrLoc, setWtrLoc] = createSignal<string>("");
   const [waterImg, setWaterImg] = createSignal<string>("");
   const [folderSrc, setFolderSrc] = createSignal<string>("");
   const [applyFolder, setApplyFolder] = createSignal<boolean>(false);
+
+  const {
+    setBaseScale,
+    setBaseDimensionScaled,
+    setBaseDimensionNatural,
+    setBasePosition,
+  } = baseState;
 
   const sendData = async () => {
     const basePath = baseLoc();
@@ -60,19 +67,52 @@ function App() {
   return (
     <div class="absolute flex size-full flex-col justify-center gap-6 bg-inherit p-16 text-center text-neutral-200">
       {imageBg().length > 0 && (
-        <div class="relative h-3/4 border border-white">
+        <div class="relative h-3/4 outline outline-white">
           <img
             src={imageBg()}
             class="size-full object-contain"
             onLoad={(evt) => {
-              const val = window.getComputedStyle(evt.target);
-              const { width, height, left, right } = val;
+              const val = evt.currentTarget;
+              const { naturalWidth, naturalHeight } = val;
+              const { height, width, top, left, bottom, right, x, y } =
+                val.getBoundingClientRect();
+
+              console.log({ top, left, right, bottom, x, y });
+
+              const ratio = naturalWidth / naturalHeight;
+              let wi = ratio * height;
+              let hi = height;
+              if (wi > width) {
+                wi = width;
+                hi = width / ratio;
+              }
+              console.log({ wi, hi });
               console.log({ width, height });
+
+              const xVal = (width - wi) / 2;
+              const yVal = (height - hi) / 2;
+
+              setBasePosition({
+                l: xVal,
+                r: wi,
+                t: yVal,
+                b: hi,
+              });
+
+              setBaseScale(wi / naturalWidth);
+              setBaseDimensionScaled({
+                wbase: wi,
+                hbase: hi,
+              });
+
+              setBaseDimensionNatural({
+                wbn: naturalWidth,
+                hbn: naturalHeight,
+              });
+
               setBaseDimension({
-                w: parseFloat(width),
-                h: parseFloat(height),
-                left: parseFloat(left),
-                right: parseFloat(right),
+                w: width,
+                h: height,
               });
             }}
           />
@@ -83,7 +123,6 @@ function App() {
               setScaledDimension={setScaledDimension}
               setCoordinate={setCoordinate}
               waterImg={waterImg()!}
-              baseCoor={baseDimension()}
             />
           )}
         </div>

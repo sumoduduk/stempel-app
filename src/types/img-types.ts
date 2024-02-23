@@ -8,7 +8,6 @@ export type DragEL = {
   scaleVal: number;
   setScaledDimension: Setter<DimensionType>;
   setCoordinate: Setter<{ x: number; y: number }>;
-  baseCoor: DimPos;
   waterImg: string;
 };
 

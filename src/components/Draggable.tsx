@@ -1,15 +1,33 @@
 import { DragOptions, createDraggable } from "@neodrag/solid";
 import { Component, createEffect, createSignal } from "solid-js";
 import { DragEL } from "~/types/img-types";
+import baseState from "../state/base-state";
 
 export const Dragabale: Component<DragEL> = (props) => {
   const [dimension, setDimension] = createSignal({ w: 0, h: 0 });
   const [dragRef, setDragRef] = createSignal<HTMLDivElement | null>(null);
   const { draggable } = createDraggable();
   // {`transition-all duration-700 will-change-[filter] hover:drop-shadow-[0_0_32px_#24c8db] `}
+
+  const { basePosition } = baseState;
+
+  console.log({ basePosition: basePosition() });
+
+  const { t: diffY, b: hi, l: diffX, r: wi } = basePosition();
+
+  console.log({ diffX, diffY, wi, hi });
+
   const options: DragOptions = {
     bounds: "parent",
     onDragEnd: ({ offsetX, offsetY }) => {
+      const coorX = offsetX - diffX;
+      const coorY = offsetY - diffY;
+      console.log({ coorX, coorY });
+
+      if (coorX < 0 || coorY < 0) return;
+      if (coorX > wi || coorY > hi) return;
+
+      console.log("hit");
       props.setCoordinate({ x: offsetX, y: offsetY });
     },
   };
@@ -18,16 +36,15 @@ export const Dragabale: Component<DragEL> = (props) => {
     const refDrag = dragRef();
     if (!refDrag) return;
     const { w, h } = dimension();
+    console.log({ w, h });
     if (w === 0) return;
-
-    console.log("scaleVal", props.scaleVal);
 
     const sw = parseFloat((w * props.scaleVal).toFixed(1));
     const sh = parseFloat((h * props.scaleVal).toFixed(1));
-    console.log({ sw, sh });
 
     refDrag.style.width = sw + "px";
     refDrag.style.height = sh + "px";
+    // console.log({ sw, sh });
     props.setScaledDimension({ w: sw, h: sh });
   });
 
