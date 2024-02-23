@@ -10,7 +10,6 @@ export async function openImage(
   setFolderSrc: Setter<string>,
   typeImage: ImageOpen,
 ) {
-  console.log("open image");
   let imageLoc;
   if (typeImage == "base") {
     imageLoc = await getImages();
@@ -30,6 +29,8 @@ export async function openImage(
     setFolderSrc(par);
   }
   setLoc(imageLoc.path);
+  console.log("path ", imageLoc.path);
   const image = convertFileSrc(imageLoc.path);
+  console.log({ image });
   setImage(image);
 }
