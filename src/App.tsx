@@ -1,4 +1,4 @@
-import { createEffect, createSignal } from "solid-js";
+import { createSignal } from "solid-js";
 
 import { Button } from "./components/ui/button";
 import { convInt, startInvoke } from "./lib/utils";
@@ -65,7 +65,7 @@ function App() {
   const finalScale = () => parseFloat((scale()[0] / 100).toFixed(1));
 
   return (
-    <div class="absolute flex size-full flex-col justify-center gap-6 bg-inherit p-16 text-center text-neutral-200">
+    <div class="absolute m-3 size-full justify-center gap-6 bg-inherit p-16 text-center text-neutral-200">
       {imageBg().length > 0 && (
         <div class="relative h-3/4 outline outline-white">
           <img
@@ -73,7 +73,22 @@ function App() {
             class="size-full object-contain"
             onLoad={(evt) => {
               const val = evt.currentTarget;
-              const { naturalWidth, naturalHeight } = val;
+              const {
+                naturalWidth,
+                naturalHeight,
+                clientWidth,
+                clientHeight,
+                offsetWidth,
+                offsetHeight,
+              } = val;
+              console.log({
+                naturalWidth,
+                naturalHeight,
+                clientWidth,
+                clientHeight,
+                offsetWidth,
+                offsetHeight,
+              });
               const { height, width, top, left, bottom, right, x, y } =
                 val.getBoundingClientRect();
 
