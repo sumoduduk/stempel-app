@@ -1,7 +1,8 @@
 import { DragOptions, createDraggable } from "@neodrag/solid";
-import { Component, createEffect, createSignal } from "solid-js";
+import { Component, createEffect, createSignal, onMount } from "solid-js";
 import { DragEL } from "~/types/img-types";
 import baseState from "../state/base-state";
+import proceed from "../state/proceed";
 
 export const Dragabale: Component<DragEL> = (props) => {
   const [dimension, setDimension] = createSignal({ w: 0, h: 0 });
@@ -9,26 +10,30 @@ export const Dragabale: Component<DragEL> = (props) => {
   const { draggable } = createDraggable();
   // {`transition-all duration-700 will-change-[filter] hover:drop-shadow-[0_0_32px_#24c8db] `}
 
-  const { basePosition } = baseState;
-
-  console.log({ basePosition: basePosition() });
+  const { basePosition, baseScale } = baseState;
+  const { canProceed, setCanProceed } = proceed;
 
   const { t: diffY, b: hi, l: diffX, r: wi } = basePosition();
-
-  console.log({ diffX, diffY, wi, hi });
 
   const options: DragOptions = {
     bounds: "parent",
     onDragEnd: ({ offsetX, offsetY }) => {
       const coorX = offsetX - diffX;
       const coorY = offsetY - diffY;
+      console.log(basePosition());
       console.log({ coorX, coorY });
+      console.log({ canProceed: canProceed() });
 
-      if (coorX < 0 || coorY < 0) return;
-      if (coorX > wi || coorY > hi) return;
+      if (coorX < 0 || coorY < 0) {
+        return setCanProceed(false);
+      }
+      if (coorX > wi || coorY > hi) {
+        return setCanProceed(false);
+      }
 
       console.log("hit");
-      props.setCoordinate({ x: offsetX, y: offsetY });
+      setCanProceed(true);
+      props.setCoordinate({ x: coorX, y: coorY });
     },
   };
 
@@ -57,13 +62,20 @@ export const Dragabale: Component<DragEL> = (props) => {
       alt="Tauri logo"
       onLoad={(ev) => {
         const { width, height } = window.getComputedStyle(ev.target);
+
+        const scaledWidth = parseFloat(width) * baseScale();
+        const scaledHeight = parseFloat(height) * baseScale();
+
+        ev.currentTarget.style.width = scaledWidth + "px";
+        ev.currentTarget.style.height = scaledHeight + "px";
+
         setDimension({
-          w: parseInt(width, 10),
-          h: parseInt(height, 10),
+          w: scaledWidth,
+          h: scaledHeight,
         });
         props.setScaledDimension({
-          w: parseInt(width, 10),
-          h: parseInt(height, 10),
+          w: scaledWidth,
+          h: scaledHeight,
         });
       }}
     />

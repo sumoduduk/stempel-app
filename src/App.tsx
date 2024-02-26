@@ -10,6 +10,7 @@ import { ResizeSlider } from "./components/ResizeSlider";
 import { convertFileSrc } from "@tauri-apps/api/core";
 
 import baseState from "./state/base-state";
+import proceed from "./state/proceed";
 
 function App() {
   const [scale, setScale] = createSignal([100]);
@@ -29,7 +30,7 @@ function App() {
   const [wtrLoc, setWtrLoc] = createSignal<string>("");
   const [waterImg, setWaterImg] = createSignal<string>("");
   const [folderSrc, setFolderSrc] = createSignal<string>("");
-  const [applyFolder, setApplyFolder] = createSignal<boolean>(false);
+  const [applyFolder, setApplyFolder] = createSignal(false);
 
   const {
     setBaseScale,
@@ -37,6 +38,8 @@ function App() {
     setBaseDimensionNatural,
     setBasePosition,
   } = baseState;
+
+  const { canProceed } = proceed;
 
   const sendData = async () => {
     const basePath = baseLoc();
@@ -67,32 +70,18 @@ function App() {
   return (
     <div class="absolute m-3 size-full justify-center gap-6 bg-inherit p-16 text-center text-neutral-200">
       {imageBg().length > 0 && (
-        <div class="relative h-3/4 outline outline-white">
+        <div
+          class={`relative h-3/4 outline outline-1 ${
+            canProceed() ? "outline-white" : "outline-red-600"
+          }`}
+        >
           <img
             src={imageBg()}
             class="size-full object-contain"
             onLoad={(evt) => {
               const val = evt.currentTarget;
-              const {
-                naturalWidth,
-                naturalHeight,
-                clientWidth,
-                clientHeight,
-                offsetWidth,
-                offsetHeight,
-              } = val;
-              console.log({
-                naturalWidth,
-                naturalHeight,
-                clientWidth,
-                clientHeight,
-                offsetWidth,
-                offsetHeight,
-              });
-              const { height, width, top, left, bottom, right, x, y } =
-                val.getBoundingClientRect();
-
-              console.log({ top, left, right, bottom, x, y });
+              const { naturalWidth, naturalHeight } = val;
+              const { height, width } = val.getBoundingClientRect();
 
               const ratio = naturalWidth / naturalHeight;
               let wi = ratio * height;
@@ -101,9 +90,6 @@ function App() {
                 wi = width;
                 hi = width / ratio;
               }
-              console.log({ wi, hi });
-              console.log({ width, height });
-
               const xVal = (width - wi) / 2;
               const yVal = (height - hi) / 2;
 
@@ -177,7 +163,9 @@ function App() {
         </div>
 
         <div>
-          <Button onClick={sendData}>PROCEED</Button>
+          <Button onClick={sendData} disabled={!canProceed()}>
+            PROCEED
+          </Button>
         </div>
       </div>
     </div>
