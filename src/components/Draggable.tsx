@@ -20,9 +20,9 @@ export const Dragabale: Component<DragEL> = (props) => {
     onDragEnd: ({ offsetX, offsetY }) => {
       const coorX = offsetX - diffX;
       const coorY = offsetY - diffY;
-      console.log(basePosition());
-      console.log({ coorX, coorY });
-      console.log({ canProceed: canProceed() });
+      // console.log(basePosition());
+      // console.log({ coorX, coorY });
+      // console.log({ canProceed: canProceed() });
 
       if (coorX < 0 || coorY < 0) {
         return setCanProceed(false);
@@ -41,7 +41,7 @@ export const Dragabale: Component<DragEL> = (props) => {
     const refDrag = dragRef();
     if (!refDrag) return;
     const { w, h } = dimension();
-    console.log({ w, h });
+    // console.log({ w, h });
     if (w === 0) return;
 
     const sw = parseFloat((w * props.scaleVal).toFixed(1));

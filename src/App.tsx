@@ -24,15 +24,14 @@ function App() {
   });
   const [coordinate, setCoordinate] = createSignal({ x: 0, y: 0 });
   const [baseLoc, setBaseLoc] = createSignal<string>("");
-  const [imageBg, setImageBg] = createSignal<string>(
-    convertFileSrc("/home/calista/Pictures/neon.png"),
-  );
+  const [imageBg, setImageBg] = createSignal<string>("");
   const [wtrLoc, setWtrLoc] = createSignal<string>("");
   const [waterImg, setWaterImg] = createSignal<string>("");
   const [folderSrc, setFolderSrc] = createSignal<string>("");
   const [applyFolder, setApplyFolder] = createSignal(false);
 
   const {
+    baseScale,
     setBaseScale,
     setBaseDimensionScaled,
     setBaseDimensionNatural,
@@ -41,6 +40,8 @@ function App() {
 
   const { canProceed } = proceed;
 
+  const finalScale = () => parseFloat((scale()[0] / 100).toFixed(1));
+
   const sendData = async () => {
     const basePath = baseLoc();
     const wtrPath = wtrLoc();
@@ -48,24 +49,22 @@ function App() {
     if (basePath.length === 0) return;
     if (wtrPath.length === 0) return;
 
-    const { w: bw, h: bh } = baseDimension();
-    const { w: ww, h: hw } = scaledDimension();
+    // const { w: bw, h: bh } = baseDimension();
+    // const { w: ww, h: hw } = scaledDimension();
     const { x: cx, y: cy } = coordinate();
 
     const invokePar: InvokeParamsType = {
       pathSrc: applyFolder() ? folderSrc() : basePath,
       waterPath: wtrPath,
-      wtrScaled: [convInt(ww), convInt(hw)],
-      imgDim: [convInt(bw), convInt(bh)],
       coordinate: [convInt(cx), convInt(cy)],
+      globalScale: baseScale(),
+      wmScale: finalScale(),
     };
 
     console.log({ invokePar });
     await startInvoke(invokePar);
     console.log("Completed");
   };
-
-  const finalScale = () => parseFloat((scale()[0] / 100).toFixed(1));
 
   return (
     <div class="absolute m-3 size-full justify-center gap-6 bg-inherit p-16 text-center text-neutral-200">
@@ -132,18 +131,17 @@ function App() {
       {/* <p class="terxt-3xl p-6 text-neutral-300">Fast Image Watermark</p> */}
 
       <div>
-        <h1 class="h-auto w-auto text-center text-4xl font-semibold text-neutral-50">
-          path dir : {folderSrc()}
-        </h1>
-
         <div class="flex flex-col items-center justify-center space-y-4 p-10">
-          <Button
-            onClick={() =>
-              openImage(setBaseLoc, setImageBg, setFolderSrc, "base")
-            }
-          >
-            Open Image
-          </Button>
+          <div class="flex w-full">
+            <Button
+              onClick={() =>
+                openImage(setBaseLoc, setImageBg, setFolderSrc, "base")
+              }
+            >
+              Open Image
+            </Button>
+            <div class="w-full rounded-r-lg bg-white py-1">{folderSrc()}</div>
+          </div>
           <Button
             onClick={() =>
               openImage(setWtrLoc, setWaterImg, setFolderSrc, "watermark")
@@ -157,7 +155,7 @@ function App() {
           <ResizeSlider scale={scale} setScale={setScale} />
         )}
 
-        <div class="mx-auto flex items-center space-x-2">
+        <div class="mx-auto flex items-center justify-center space-x-2">
           <Checkbox checked={applyFolder()} onChange={setApplyFolder} />
           <h3 class="m-auto">Apply to all image in folder ?</h3>
         </div>

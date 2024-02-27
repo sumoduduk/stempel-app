@@ -53,7 +53,7 @@ mod test {
     #[test]
     fn test_file_operation_should_exists() {
         let start = Instant::now();
-        let folder_path = Path::new("./test_img");
+        let folder_path = Path::new("/home/calista/Pictures/test/");
 
         let files = read_folder(&folder_path).unwrap();
 

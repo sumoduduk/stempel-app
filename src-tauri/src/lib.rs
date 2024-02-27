@@ -1,6 +1,5 @@
 mod file_operation;
 mod img_watermark;
-mod scale_image;
 mod utils;
 
 use img_watermark::watermark_command;

@@ -12,9 +12,9 @@ export type DragEL = {
 };
 
 export type InvokeParamsType = {
+  globalScale: number;
+  coordinate: [number, number];
+  wmScale: number;
   pathSrc: string;
   waterPath: string;
-  wtrScaled: [number, number];
-  imgDim: [number, number];
-  coordinate: [number, number];
 };

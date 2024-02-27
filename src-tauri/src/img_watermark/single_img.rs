@@ -5,21 +5,18 @@ use image::{imageops, DynamicImage};
 
 use crate::{
     file_operation::{create_folder, get_filename},
-    scale_image::begin_scale,
     utils::get_seconds,
 };
+
+use super::ImgBuf;
 
 pub fn single_opr(
     image_path: &Path,
     img_buffer: &mut DynamicImage,
-    water_buff: &DynamicImage,
-    wtr_scaled: (u32, u32),
-    img_dim: (u32, u32),
+    water_buff: &ImgBuf,
     coordinate: (i64, i64),
 ) -> eyre::Result<()> {
     dbg!(image_path);
-    dbg!(wtr_scaled);
-    dbg!(img_dim);
     dbg!(coordinate);
 
     let folder_img = image_path.parent().ok_or_eyre("folder not exist")?;
@@ -27,11 +24,9 @@ pub fn single_opr(
     //TODO: next to compute scale of img_buffer
     //TODO: next to compute scale of watermark
 
-    let (ww, wh) = wtr_scaled;
     let (cw, ch) = coordinate;
-    let wtr_scale = begin_scale(water_buff, ww, wh, imageops::FilterType::Nearest);
 
-    imageops::overlay(img_buffer, &wtr_scale, cw, ch);
+    imageops::overlay(img_buffer, water_buff, cw, ch);
 
     let file_name = get_filename(image_path).ok_or_eyre("ERROR: can't get file name")?;
     let seconds = get_seconds();
@@ -58,24 +53,15 @@ mod test {
     const BASE_WEBP: &str = "/home/calista/Pictures/pp.webp";
 
     fn base_test(base_path: &str, water_path: &str) -> eyre::Result<()> {
-        let wtr_scaled = (250, 250);
-        let img_dim = (250, 250);
         let coordinate = (0, 0);
 
         let path_src = Path::new(base_path);
         let water_path = Path::new(water_path);
 
-        let water_buff = image::open(water_path)?;
+        let water_buff = image::open(water_path)?.to_rgba8();
         let mut img_buffer = image::open(path_src)?;
 
-        let res = single_opr(
-            path_src,
-            &mut img_buffer,
-            &water_buff,
-            wtr_scaled,
-            img_dim,
-            coordinate,
-        );
+        let res = single_opr(path_src, &mut img_buffer, &water_buff, coordinate);
         dbg!(&res);
         res
     }
