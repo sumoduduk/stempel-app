@@ -52,8 +52,13 @@ pub fn watermark_command(
         imageops::FilterType::Nearest,
     );
 
-    let coor_x = (coordinate.0 as f32 * global_scale) as i64;
-    let coor_y = (coordinate.1 as f32 * global_scale) as i64;
+    dbg!(ww);
+    dbg!(hw);
+    dbg!(final_ww);
+    dbg!(final_wh);
+
+    let coor_x = (coordinate.0 as f32 / global_scale) as i64;
+    let coor_y = (coordinate.1 as f32 / global_scale) as i64;
 
     let coordinate = (coor_x, coor_y);
 

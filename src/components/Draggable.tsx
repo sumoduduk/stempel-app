@@ -1,5 +1,5 @@
 import { DragOptions, createDraggable } from "@neodrag/solid";
-import { Component, createEffect, createSignal, onMount } from "solid-js";
+import { Component, createEffect, createSignal } from "solid-js";
 import { DragEL } from "~/types/img-types";
 import baseState from "../state/base-state";
 import proceed from "../state/proceed";
@@ -11,7 +11,7 @@ export const Dragabale: Component<DragEL> = (props) => {
   // {`transition-all duration-700 will-change-[filter] hover:drop-shadow-[0_0_32px_#24c8db] `}
 
   const { basePosition, baseScale } = baseState;
-  const { canProceed, setCanProceed } = proceed;
+  const { setCanProceed } = proceed;
 
   const { t: diffY, b: hi, l: diffX, r: wi } = basePosition();
 
@@ -61,10 +61,12 @@ export const Dragabale: Component<DragEL> = (props) => {
       class="absolute left-0 top-0 outline-dashed outline-1 transition-transform duration-75"
       alt="Tauri logo"
       onLoad={(ev) => {
-        const { width, height } = window.getComputedStyle(ev.target);
+        const { naturalWidth, naturalHeight } = ev.currentTarget;
 
-        const scaledWidth = parseFloat(width) * baseScale();
-        const scaledHeight = parseFloat(height) * baseScale();
+        const scaledWidth = naturalWidth * baseScale();
+        const scaledHeight = naturalHeight * baseScale();
+
+        console.log({ scaledWidth, scaledHeight });
 
         ev.currentTarget.style.width = scaledWidth + "px";
         ev.currentTarget.style.height = scaledHeight + "px";
