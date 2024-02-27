@@ -1,5 +1,6 @@
 mod load_base;
 mod load_watermark;
+mod multi_async;
 mod multi_thread;
 mod single_img;
 
