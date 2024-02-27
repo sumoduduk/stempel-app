@@ -24,9 +24,12 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 image = "0.24.7"
 eyre = "0.6.12"
+tokio = { version = "1.36.0", features = ["fs"] }
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
 # DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]
 
+[dev-dependencies]
+tokio = { version = "1.36.0", features = ["macros"] }
