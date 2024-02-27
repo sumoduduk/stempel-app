@@ -1,9 +1,11 @@
 {
+  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "build": {
     "beforeBuildCommand": "pnpm build",
     "beforeDevCommand": "pnpm dev",
     "devPath": "http://localhost:1420",
-    "distDir": "../dist"
+    "distDir": "../dist",
+    "withGlobalTauri": true
   },
   "package": {
     "productName": "stempel",
@@ -26,19 +28,41 @@
       ]
     },
     "security": {
-      "csp": null
+      "csp": "default-src 'self' ipc: http://ipc.localhost; img-src 'self' asset: http://asset.localhost",
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["**"]
+      }
     },
     "windows": [
       {
         "fullscreen": false,
         "resizable": true,
         "title": "Stempel",
-        "width": 800,
-        "height": 600
+        "width": 720,
+        "height": 1080
       }
     ]
   },
   "plugins": {
+    "fs": {
+      "scope": [
+        "$APPDATA/*",
+        "$DATA/*",
+        "$LOCALDATA/*",
+        "$DESKTOP/*",
+        "$DOCUMENT/*",
+        "$DOWNLOAD/*",
+        "$HOME/*",
+        "$PICTURE/*",
+        "$PUBLIC/*",
+        "$VIDEO/*",
+        "$RESOURCE",
+        "$RESOURCE/*",
+        "$RESOURCE/**",
+        "$RESOURCE/locales/*"
+      ]
+    },
     "shell": {
       "open": true
     }

@@ -10,7 +10,6 @@ export async function openImage(
   setFolderSrc: Setter<string>,
   typeImage: ImageOpen,
 ) {
-  console.log("open image");
   let imageLoc;
   if (typeImage == "base") {
     imageLoc = await getImages();

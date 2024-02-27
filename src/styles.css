@@ -4,8 +4,10 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    /* --background: 0 0% 100%; */
+
+    --background: 240 10% 3.9%;
+    /* --foreground: 240 10% 3.9%; */
 
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
@@ -99,6 +101,9 @@
     @apply border-border;
   }
   body {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
     @apply bg-background text-foreground;
     font-feature-settings:
       "rlig" 1,
