@@ -11,6 +11,7 @@ import wmState from "./state/wm-state";
 import baseState from "./state/base-state";
 import proceed from "./state/proceed";
 import OpenResize from "./components/OpenResize";
+import { ProgressWm } from "./components/ProgressWm";
 
 function App() {
   const [scaledDimension, setScaledDimension] = createSignal<DimensionType>({
@@ -137,7 +138,7 @@ function App() {
         {/* <p class="terxt-3xl p-6 text-neutral-300">Fast Image Watermark</p> */}
 
         <div>
-          <div class="flex flex-col items-center justify-center space-y-4 p-10">
+          <div class="flex items-center justify-center space-x-4 p-10">
             <div class="flex w-full">
               <Button
                 class="w-1/4"
@@ -148,7 +149,7 @@ function App() {
                 Open Image
               </Button>
               <div class="flex w-full items-center rounded-r-lg bg-white py-1 text-start text-gray-800">
-                {folderSrc()}
+                <p class="truncate">{folderSrc()}</p>
               </div>
             </div>
 
@@ -163,7 +164,7 @@ function App() {
                 Load Watermark
               </Button>
               <div class="flex w-full items-center rounded-r-lg bg-white py-1 text-start text-gray-800">
-                {wtrLoc()}
+                <p class="truncate">{wtrLoc()}</p>
               </div>
             </div>
           </div>
@@ -177,6 +178,9 @@ function App() {
             <Button onClick={sendData} disabled={!canProceed()}>
               PROCEED
             </Button>
+          </div>
+          <div class="lg:1/2 mx-auto w-3/4">
+            <ProgressWm />
           </div>
         </div>
       </div>
