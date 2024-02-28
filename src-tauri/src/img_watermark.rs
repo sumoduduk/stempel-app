@@ -5,11 +5,13 @@ mod multi_thread;
 mod rayon_async;
 mod single_img;
 
+use crate::file_operation::read_folder;
 use image::{imageops, GenericImageView, ImageBuffer, Rgba};
 use single_img::single_opr;
 use std::path::Path;
-
-use crate::file_operation::read_folder;
+use std::sync::mpsc::channel;
+use std::thread;
+use tauri::{Manager, Runtime};
 
 use self::load_base::base_load_file;
 use self::load_watermark::wm_load_file;
@@ -18,12 +20,13 @@ use self::multi_thread::multi_thread_opr;
 type ImgBuf = ImageBuffer<Rgba<u8>, Vec<u8>>;
 
 #[tauri::command]
-pub fn watermark_command(
+pub async fn watermark_command<R: Runtime>(
     path_src: String,
     water_path: String,
     coordinate: (i64, i64),
     global_scale: f32,
     wm_scale: f32,
+    window: tauri::Window<R>,
 ) -> Result<(), String> {
     let path_src = Path::new(&path_src);
     let water_path = Path::new(&water_path);
@@ -54,11 +57,6 @@ pub fn watermark_command(
         imageops::FilterType::Nearest,
     );
 
-    dbg!(ww);
-    dbg!(hw);
-    dbg!(final_ww);
-    dbg!(final_wh);
-
     let coor_x = (coordinate.0 as f32 / global_scale) as i64;
     let coor_y = (coordinate.1 as f32 / global_scale) as i64;
 
@@ -80,7 +78,28 @@ pub fn watermark_command(
     } else {
         let images = read_folder(path_src).ok_or_else(|| "Error: Reading folder".to_string())?;
 
-        multi_thread_opr(path_src, images, water_buff, coordinate);
+        let len = images.len();
+
+        let (tx, rx) = channel();
+
+        thread::spawn(move || {
+            let mut initial = 0;
+            while let Ok(_count) = rx.recv() {
+                initial += 1;
+
+                let new_init = initial;
+
+                let progress = (new_init * 100) / (4 * len as i32);
+
+                dbg!(progress);
+                window
+                    .emit("progress", progress)
+                    .map_err(|err| format!("ERROR: {err}"))
+                    .unwrap();
+            }
+        });
+
+        multi_thread_opr(path_src, images, water_buff, coordinate, tx);
     }
 
     Ok(())
