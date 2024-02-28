@@ -1,10 +1,20 @@
 use eyre::eyre;
 use image::{imageops, load, ImageFormat};
-use std::{io::BufReader, path::Path, sync::Arc};
+use std::{
+    io::{BufReader, Cursor},
+    path::Path,
+    sync::Arc,
+};
 use tauri::async_runtime::spawn;
-use tokio::fs::{create_dir, read_dir, File};
+use tokio::{
+    fs::{create_dir, read, read_dir, File},
+    io::AsyncWriteExt,
+    task::spawn_blocking,
+};
 
 use crate::{file_operation::is_image, utils::get_seconds};
+
+use image::io::Reader as ImgReader;
 
 use super::ImgBuf;
 
@@ -35,31 +45,36 @@ pub async fn multi_task(path_src: &Path, wtr_buff: ImgBuf) -> eyre::Result<()> {
         match file_path {
             Some(file_path) => {
                 let handle = spawn(async move {
-                    let file = File::open(&file_path).await;
-                    match file {
-                        Ok(file) => {
-                            let buf_read = BufReader::new(file.into_std().await);
-                            if let Ok(extens) = ImageFormat::from_path(&file_name) {
-                                if let Ok(mut img_buff) = load(buf_read, extens) {
-                                    let wtr_mark = water_scale.as_ref();
-                                    imageops::overlay(&mut img_buff, wtr_mark, 2, 2);
+                    if let Ok(img_data) = read(file_path).await {
+                        let cursor = Cursor::new(img_data);
 
+                        let img_main = ImgReader::new(cursor)
+                            .with_guessed_format()
+                            .map_err(|err| eprintln!("Error: {err}"));
+                        if let Ok(img_main) = img_main {
+                            if let Ok(mut img_buff) = img_main.decode() {
+                                imageops::overlay(&mut img_buff, water_scale.as_ref(), 2, 2);
+
+                                let mut bytes = vec![];
+                                let write_res = img_buff
+                                    .write_to(&mut Cursor::new(&mut bytes), ImageFormat::Png);
+
+                                if let Ok(_write) = write_res {
                                     let file_out = out_folder.join(file_name);
-
-                                    if let Err(err) = img_buff.save(&file_out) {
-                                        eprintln!("{err}");
+                                    if let Ok(mut output_file) = File::create(&file_out).await {
+                                        if let Ok(_save_res) = output_file.write_all(&bytes).await {
+                                            println!("file output : {:?}", &file_out);
+                                        }
                                     }
-                                    println!("file output : {:?}", &file_out);
                                 }
                             }
                         }
-                        Err(err) => eprintln!("INFO: {err}"),
                     }
                 });
 
                 handles.push(handle)
             }
-            None => println!("Not an image file"),
+            None => println!("INFO: Not an image file"),
         }
     }
 
