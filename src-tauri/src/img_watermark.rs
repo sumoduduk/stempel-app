@@ -2,6 +2,7 @@ mod load_base;
 mod load_watermark;
 mod multi_async;
 mod multi_thread;
+mod rayon_async;
 mod single_img;
 
 use image::{imageops, GenericImageView, ImageBuffer, Rgba};

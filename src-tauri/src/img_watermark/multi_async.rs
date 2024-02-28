@@ -9,7 +9,6 @@ use tauri::async_runtime::spawn;
 use tokio::{
     fs::{create_dir, read, read_dir, File},
     io::AsyncWriteExt,
-    task::spawn_blocking,
 };
 
 use crate::{file_operation::is_image, utils::get_seconds};
@@ -51,6 +50,7 @@ pub async fn multi_task(path_src: &Path, wtr_buff: ImgBuf) -> eyre::Result<()> {
                         let img_main = ImgReader::new(cursor)
                             .with_guessed_format()
                             .map_err(|err| eprintln!("Error: {err}"));
+
                         if let Ok(img_main) = img_main {
                             if let Ok(mut img_buff) = img_main.decode() {
                                 imageops::overlay(&mut img_buff, water_scale.as_ref(), 2, 2);
