@@ -1,6 +1,6 @@
 use std::{
     path::{Path, PathBuf},
-    sync::Arc,
+    sync::{mpsc::Sender, Arc},
     thread,
 };
 
@@ -18,6 +18,7 @@ pub fn multi_thread_opr(
     images: Vec<PathBuf>,
     water_buffr: ImgBuf,
     coordinate: (i64, i64),
+    sender: Sender<u8>,
 ) {
     let seconds = get_seconds();
     let folder_name = format!("watermark_{seconds}");
@@ -32,23 +33,29 @@ pub fn multi_thread_opr(
         let out_folder = Arc::clone(&out_folder);
         let water_scale = Arc::clone(&water_scale);
 
+        let sender = sender.clone();
+
         let handle = thread::spawn(move || {
             let image_main = image::open(&img_path);
 
+            let _ = sender.send(1);
             match image_main {
                 Ok(mut image_main) => {
                     let wtr_mark = water_scale.as_ref();
                     imageops::overlay(&mut image_main, wtr_mark, coordinate.0, coordinate.1);
+                    let _ = sender.send(1);
 
                     let file_name = get_filename(&img_path);
 
                     match file_name {
                         Some(file_name) => {
                             let file_out = out_folder.join(file_name);
+                            let _ = sender.send(1);
 
                             let _ = image_main.save(&file_out);
 
                             println!("file output : {:?}", &file_out);
+                            let _ = sender.send(1);
                         }
                         None => println!(
                             "ERROR: get filename {img_path}",
@@ -72,6 +79,7 @@ mod test {
 
     use super::*;
     use std::path::Path;
+    use std::sync::mpsc::channel;
     use std::time::Instant;
 
     use crate::file_operation::read_folder;
@@ -90,7 +98,9 @@ mod test {
         let duration_read = start.elapsed();
         println!("TEST: Read duration : {:#?}", duration_read);
 
-        multi_thread_opr(folder_path, images, water_buffr, coordinate);
+        let (tx, _) = channel();
+
+        multi_thread_opr(folder_path, images, water_buffr, coordinate, tx);
 
         let duration = start.elapsed();
         println!("TEST: Time duration finish : {:#?}", duration);
