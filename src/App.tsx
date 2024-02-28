@@ -10,6 +10,8 @@ import { Checkbox } from "./components/ui/checkbox";
 import wmState from "./state/wm-state";
 import baseState from "./state/base-state";
 import proceed from "./state/proceed";
+import stateProgress from "./state/progress";
+
 import OpenResize from "./components/OpenResize";
 import { ProgressWm } from "./components/ProgressWm";
 
@@ -35,18 +37,21 @@ function App() {
   } = baseState;
 
   const { canProceed, setCanProceed } = proceed;
+  const { setProgress } = stateProgress;
 
   const finalScale = () => parseFloat((scale()[0] / 100).toFixed(1));
 
   const defaultState = () => {
     setCoordinate({ x: 0, y: 0 });
     setWaterImg("");
+    setWtrLoc("");
     setScale([100]);
     setApplyFolder(false);
     setCanProceed(false);
   };
 
   const sendData = async () => {
+    setProgress(0);
     const basePath = baseLoc();
     const wtrPath = wtrLoc();
 
@@ -76,13 +81,13 @@ function App() {
       <div class="absolute m-3 size-full justify-center gap-6 bg-inherit p-16 text-center text-neutral-200">
         {imageBg().length > 0 ? (
           <div
-            class={`relative h-3/4 outline outline-1 ${
+            class={`relative h-2/3 outline outline-1 ${
               canProceed() ? "outline-white" : "outline-red-600"
             }`}
           >
             <img
               src={imageBg()}
-              class="h-1/2 w-full object-contain"
+              class="size-full object-contain"
               onLoad={(evt) => {
                 defaultState();
                 const val = evt.currentTarget;
@@ -137,11 +142,11 @@ function App() {
 
         {/* <p class="terxt-3xl p-6 text-neutral-300">Fast Image Watermark</p> */}
 
-        <div>
-          <div class="flex items-center justify-center space-x-4 p-10">
+        <div class="flex h-1/3 w-full flex-col items-center justify-center space-y-1">
+          <div class="flex w-full items-center justify-center space-x-4 p-10">
             <div class="flex w-full">
               <Button
-                class="w-1/4"
+                class="w-1/3"
                 onClick={() =>
                   openImage(setBaseLoc, setImageBg, setFolderSrc, "base")
                 }
@@ -155,7 +160,7 @@ function App() {
 
             <div class="flex w-full">
               <Button
-                class="w-1/4"
+                class="w-1/3"
                 onClick={() =>
                   openImage(setWtrLoc, setWaterImg, setFolderSrc, "watermark")
                 }
