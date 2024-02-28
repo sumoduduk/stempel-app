@@ -1,30 +1,26 @@
 use eyre::eyre;
 use rayon::prelude::*;
-use std::{io::Cursor, path::Path, sync::Arc};
-use tokio::{
-    fs::{create_dir, read, read_dir, File},
-    io::AsyncWriteExt,
+use std::{
+    io::Cursor,
+    path::Path,
+    sync::{Arc, RwLock},
 };
+use tokio::fs::{create_dir, read, read_dir};
 
 use super::ImgBuf;
 use crate::{file_operation::is_image, utils::get_seconds};
 
-use image::{imageops, io::Reader as ImgReader, ImageFormat};
+use image::{imageops, io::Reader as ImgReader};
 
 pub async fn multi_rayon(path_src: &Path, wtr_buff: ImgBuf) -> eyre::Result<()> {
     let seconds = get_seconds();
     let folder_name = format!("watermark_{seconds}");
     let out_folder_name = path_src.join(&folder_name);
     let out_folder = Arc::new(out_folder_name);
-    // let water_scale = Arc::new(wtr_buff);
 
     let (tx, recv) = tokio::sync::oneshot::channel();
 
-    create_dir(out_folder.as_ref()).await?;
-
     let mut dir = read_dir(path_src).await?;
-
-    let mut handles = Vec::new();
 
     let mut files_path = Vec::new();
 
@@ -47,58 +43,42 @@ pub async fn multi_rayon(path_src: &Path, wtr_buff: ImgBuf) -> eyre::Result<()> 
     }
 
     let _files_len = files_path.len();
+    create_dir(out_folder.as_ref()).await?;
 
     rayon::spawn(move || {
-        let batch: Vec<_> = files_path
-            .par_iter()
-            .filter_map(move |(path, data)| {
-                let path = Arc::clone(path);
-                let data = Arc::clone(data);
-                let cursor = Cursor::new(data.as_ref());
+        let counter = Arc::new(RwLock::new(0));
+        let counter_inside = counter.clone();
+        files_path.par_iter().for_each(move |(path, data)| {
+            let path = Arc::clone(path);
+            let data = Arc::clone(data);
+            let cursor = Cursor::new(data.as_ref());
 
-                let img_main = ImgReader::new(cursor)
-                    .with_guessed_format()
-                    .map_err(|err| eprintln!("Error: {err}"));
+            let img_main = ImgReader::new(cursor)
+                .with_guessed_format()
+                .map_err(|err| eprintln!("Error: {err}"));
 
-                match img_main {
-                    Ok(img_main) => match img_main.decode() {
-                        Ok(mut img_buff) => {
-                            imageops::overlay(&mut img_buff, &wtr_buff, 2, 2);
+            match img_main {
+                Ok(img_main) => match img_main.decode() {
+                    Ok(mut img_buff) => {
+                        imageops::overlay(&mut img_buff, &wtr_buff, 2, 2);
 
-                            let mut bytes = vec![];
-
-                            match img_buff.write_to(&mut Cursor::new(&mut bytes), ImageFormat::Png)
-                            {
-                                Ok(_) => Some((path, Arc::new(bytes))),
-                                Err(_) => None,
-                            }
-                        }
-                        Err(_) => None,
-                    },
-                    Err(_) => None,
-                }
-            })
-            .collect();
-        let _ = tx.send(batch);
-    });
-
-    for (path_file, data) in recv.await? {
-        let out_folder = Arc::clone(&out_folder);
-        let handle = tauri::async_runtime::spawn(async move {
-            let file_out = out_folder.join(path_file.as_ref());
-            if let Ok(mut output_file) = File::create(&file_out).await {
-                if let Ok(_save_res) = output_file.write_all(data.as_ref()).await {
-                    println!("file output : {:?}", &file_out);
-                }
+                        let file_out = out_folder.join(path.as_ref());
+                        let _ = img_buff.save(&file_out);
+                        let mut w = counter_inside.write().unwrap();
+                        *w += 1;
+                    }
+                    Err(_) => eprintln!("Error: cant decode image"),
+                },
+                Err(_) => eprintln!("ERROR: failed read image"),
             }
         });
 
-        handles.push(handle);
-    }
+        let _ = tx.send(counter);
+    });
 
-    for handle in handles {
-        handle.await?;
-    }
+    let count = recv.await?;
+    let count = count.read().unwrap();
+    println!("count: {}", &count);
 
     Ok(())
 }

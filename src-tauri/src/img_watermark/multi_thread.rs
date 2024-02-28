@@ -77,7 +77,7 @@ mod test {
     use crate::file_operation::read_folder;
 
     const WM_PATH: &str = "/home/calista/Pictures/tauri_logo.png";
-    const FOLDER_PATH: &str = "/home/calista/Pictures/test/";
+    const FOLDER_PATH: &str = "/home/calista/Pictures/img-robo/";
 
     #[test]
     fn test_multi_thread() -> eyre::Result<()> {
