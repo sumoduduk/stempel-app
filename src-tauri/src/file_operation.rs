@@ -28,6 +28,19 @@ pub fn read_folder(path: &Path) -> Option<Vec<PathBuf>> {
     }
 }
 
+pub fn is_image(pathbuf: PathBuf) -> Option<PathBuf> {
+    if pathbuf.is_file() {
+        let extension = pathbuf.extension().and_then(std::ffi::OsStr::to_str);
+
+        match extension {
+            Some("jpg") | Some("jpeg") | Some("png") | Some("webp") => Some(pathbuf),
+            _ => None,
+        }
+    } else {
+        None
+    }
+}
+
 pub fn get_filename(path: &Path) -> Option<&str> {
     let file_name = path.file_name()?.to_str();
 
