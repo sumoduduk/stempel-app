@@ -1,10 +1,6 @@
 use eyre::eyre;
-use image::{imageops, load, ImageFormat};
-use std::{
-    io::{BufReader, Cursor},
-    path::Path,
-    sync::Arc,
-};
+use image::{imageops, ImageFormat};
+use std::{io::Cursor, path::Path, sync::Arc};
 use tauri::async_runtime::spawn;
 use tokio::{
     fs::{create_dir, read, read_dir, File},
