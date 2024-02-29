@@ -1,5 +1,5 @@
 import { convertFileSrc } from "@tauri-apps/api/core";
-import { getImages, getWatermarkImage } from "./fs-utils";
+import { getImages, getWatermarkImage, savePathToStorage } from "./fs-utils";
 import { Setter } from "solid-js";
 
 type ImageOpen = "base" | "watermark";
@@ -20,6 +20,7 @@ export async function openImage(
 
   let strPath = imageLoc.path;
   if (!strPath) return;
+  savePathToStorage(imageLoc.path);
   if (typeImage == "base") {
     let parent = strPath.split("/");
     parent.pop();
