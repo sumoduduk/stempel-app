@@ -12,6 +12,7 @@ import proceed from "../state/proceed";
 import { listen } from "@tauri-apps/api/event";
 
 import stateProgress from "../state/progress";
+import wmState from "../state/wm-state";
 
 export const Dragabale: Component<DragEL> = (props) => {
   const [dimension, setDimension] = createSignal({ w: 0, h: 0 });
@@ -22,12 +23,16 @@ export const Dragabale: Component<DragEL> = (props) => {
   const { setProgress } = stateProgress;
   const { basePosition, baseScale } = baseState;
   const { setCanProceed } = proceed;
+  const { parentCoor, setParentCoor } = wmState;
 
   const { t: diffY, b: hi, l: diffX, r: wi } = basePosition();
 
   const options: DragOptions = {
+    position: parentCoor(),
     bounds: "parent",
-    onDragEnd: ({ offsetX, offsetY }) => {
+    onDrag: ({ offsetX, offsetY }) => {
+      console.log("drag");
+      setParentCoor({ x: offsetX, y: offsetY });
       const coorX = offsetX - diffX;
       const coorY = offsetY - diffY;
       // console.log(basePosition());

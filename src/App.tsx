@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { createEffect, createSignal, onCleanup } from "solid-js";
 
 import { Button } from "./components/ui/button";
 import { convInt, startInvoke } from "./lib/utils";
@@ -16,6 +16,7 @@ import OpenResize from "./components/OpenResize";
 import { ProgressWm } from "./components/ProgressWm";
 
 function App() {
+  const [imgRef, setImgRef] = createSignal<HTMLImageElement>();
   const [scaledDimension, setScaledDimension] = createSignal<DimensionType>({
     w: 0,
     h: 0,
@@ -26,12 +27,21 @@ function App() {
   const [folderSrc, setFolderSrc] = createSignal<string>("");
   const [applyFolder, setApplyFolder] = createSignal(false);
 
-  const { setScale, scale, waterImg, setWaterImg, wtrLoc, setWtrLoc } = wmState;
+  const {
+    setScale,
+    scale,
+    waterImg,
+    setWaterImg,
+    wtrLoc,
+    setWtrLoc,
+    setParentCoor,
+  } = wmState;
 
   const {
     baseScale,
     setBaseScale,
     setBaseDimensionScaled,
+    baseDimensionNatural,
     setBaseDimensionNatural,
     setBasePosition,
   } = baseState;
@@ -58,8 +68,6 @@ function App() {
     if (basePath.length === 0) return;
     if (wtrPath.length === 0) return;
 
-    // const { w: bw, h: bh } = baseDimension();
-    // const { w: ww, h: hw } = scaledDimension();
     const { x: cx, y: cy } = coordinate();
 
     const invokePar: InvokeParamsType = {
@@ -76,6 +84,57 @@ function App() {
     console.log("Completed");
   };
 
+  const onResizeChange = (el: Element, fr: string) => {
+    const { height, width } = el.getBoundingClientRect();
+
+    console.log(`from ${fr}`, height, width);
+    const { wbn: naturalWidth, hbn: naturalHeight } = baseDimensionNatural();
+
+    const ratio = naturalWidth / naturalHeight;
+    let wi = ratio * height;
+    let hi = height;
+    if (wi > width) {
+      wi = width;
+      hi = width / ratio;
+    }
+    const xVal = (width - wi) / 2;
+    const yVal = (height - hi) / 2;
+
+    setBasePosition({
+      l: xVal,
+      r: wi,
+      t: yVal,
+      b: hi,
+    });
+
+    setBaseScale(wi / naturalWidth);
+    setBaseDimensionScaled({
+      wbase: wi,
+      hbase: hi,
+    });
+  };
+
+  createEffect(() => {
+    const observer = new ResizeObserver((entries) => {
+      const el = entries[0].target;
+
+      setParentCoor({ x: 0, y: 0 });
+
+      onResizeChange(el, "resize observer");
+    });
+
+    const element = imgRef();
+    if (element) {
+      observer.observe(element);
+    }
+
+    onCleanup(() => {
+      if (element) {
+        observer.unobserve(element);
+      }
+    });
+  });
+
   return (
     <>
       <div class="absolute m-3 size-full justify-center gap-6 bg-inherit p-16 text-center text-neutral-200">
@@ -88,39 +147,19 @@ function App() {
             <img
               src={imageBg()}
               class="size-full object-contain"
+              ref={setImgRef}
               onLoad={(evt) => {
                 defaultState();
                 const val = evt.currentTarget;
+
                 const { naturalWidth, naturalHeight } = val;
-                const { height, width } = val.getBoundingClientRect();
-
-                const ratio = naturalWidth / naturalHeight;
-                let wi = ratio * height;
-                let hi = height;
-                if (wi > width) {
-                  wi = width;
-                  hi = width / ratio;
-                }
-                const xVal = (width - wi) / 2;
-                const yVal = (height - hi) / 2;
-
-                setBasePosition({
-                  l: xVal,
-                  r: wi,
-                  t: yVal,
-                  b: hi,
-                });
-
-                setBaseScale(wi / naturalWidth);
-                setBaseDimensionScaled({
-                  wbase: wi,
-                  hbase: hi,
-                });
 
                 setBaseDimensionNatural({
                   wbn: naturalWidth,
                   hbn: naturalHeight,
                 });
+
+                onResizeChange(evt.target, "load");
               }}
             />
 
