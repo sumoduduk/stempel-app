@@ -25,19 +25,14 @@ export const Dragabale: Component<DragEL> = (props) => {
   const { setCanProceed } = proceed;
   const { parentCoor, setParentCoor } = wmState;
 
-  const { t: diffY, b: hi, l: diffX, r: wi } = basePosition();
-
   const options: DragOptions = {
     position: parentCoor(),
     bounds: "parent",
     onDrag: ({ offsetX, offsetY }) => {
-      console.log("drag");
+      const { t: diffY, b: hi, l: diffX, r: wi } = basePosition();
       setParentCoor({ x: offsetX, y: offsetY });
       const coorX = offsetX - diffX;
       const coorY = offsetY - diffY;
-      // console.log(basePosition());
-      // console.log({ coorX, coorY });
-      // console.log({ canProceed: canProceed() });
 
       if (coorX < 0 || coorY < 0) {
         return setCanProceed(false);
@@ -46,7 +41,6 @@ export const Dragabale: Component<DragEL> = (props) => {
         return setCanProceed(false);
       }
 
-      console.log("hit");
       setCanProceed(true);
       props.setCoordinate({ x: coorX, y: coorY });
     },
@@ -56,7 +50,6 @@ export const Dragabale: Component<DragEL> = (props) => {
     const unlisten = await listen("progress", (event) => {
       const payload = event.payload as number;
 
-      console.log({ payload });
       setProgress(payload);
     });
 
@@ -69,7 +62,6 @@ export const Dragabale: Component<DragEL> = (props) => {
     const refDrag = dragRef();
     if (!refDrag) return;
     const { w, h } = dimension();
-    // console.log({ w, h });
     if (w === 0) return;
 
     const sw = parseFloat((w * props.scaleVal).toFixed(1));
@@ -77,8 +69,6 @@ export const Dragabale: Component<DragEL> = (props) => {
 
     refDrag.style.width = sw + "px";
     refDrag.style.height = sh + "px";
-    // console.log({ sw, sh });
-    props.setScaledDimension({ w: sw, h: sh });
   });
 
   return (
@@ -94,16 +84,10 @@ export const Dragabale: Component<DragEL> = (props) => {
         const scaledWidth = naturalWidth * baseScale();
         const scaledHeight = naturalHeight * baseScale();
 
-        console.log({ scaledWidth, scaledHeight });
-
         ev.currentTarget.style.width = scaledWidth + "px";
         ev.currentTarget.style.height = scaledHeight + "px";
 
         setDimension({
-          w: scaledWidth,
-          h: scaledHeight,
-        });
-        props.setScaledDimension({
           w: scaledWidth,
           h: scaledHeight,
         });
