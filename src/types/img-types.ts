@@ -6,7 +6,6 @@ export type DimPos = posBase & DimensionType;
 export type DragEL = {
   children?: JSX.Element;
   scaleVal: number;
-  setScaledDimension: Setter<DimensionType>;
   setCoordinate: Setter<{ x: number; y: number }>;
   waterImg: string;
 };

@@ -2,7 +2,7 @@ import { createEffect, createSignal, onCleanup } from "solid-js";
 
 import { Button } from "./components/ui/button";
 import { convInt, startInvoke } from "./lib/utils";
-import { DimensionType, InvokeParamsType } from "./types/img-types";
+import { InvokeParamsType } from "./types/img-types";
 import { Dragabale } from "./components/Draggable";
 import { openImage } from "./lib/open-image";
 import { Checkbox } from "./components/ui/checkbox";
@@ -17,10 +17,6 @@ import { ProgressWm } from "./components/ProgressWm";
 
 function App() {
   const [imgRef, setImgRef] = createSignal<HTMLImageElement>();
-  const [scaledDimension, setScaledDimension] = createSignal<DimensionType>({
-    w: 0,
-    h: 0,
-  });
   const [coordinate, setCoordinate] = createSignal({ x: 0, y: 0 });
   const [baseLoc, setBaseLoc] = createSignal<string>("");
   const [imageBg, setImageBg] = createSignal<string>("");
@@ -78,16 +74,12 @@ function App() {
       wmScale: finalScale(),
     };
 
-    console.log("wm scale", scaledDimension());
-    console.log({ invokePar });
     await startInvoke(invokePar);
-    console.log("Completed");
   };
 
   const onResizeChange = (el: Element, fr: string) => {
     const { height, width } = el.getBoundingClientRect();
 
-    console.log(`from ${fr}`, height, width);
     const { wbn: naturalWidth, hbn: naturalHeight } = baseDimensionNatural();
 
     const ratio = naturalWidth / naturalHeight;
@@ -112,6 +104,7 @@ function App() {
       wbase: wi,
       hbase: hi,
     });
+    setScale([100]);
   };
 
   createEffect(() => {
@@ -166,7 +159,6 @@ function App() {
             {waterImg().length > 0 && (
               <Dragabale
                 scaleVal={finalScale()}
-                setScaledDimension={setScaledDimension}
                 setCoordinate={setCoordinate}
                 waterImg={waterImg()!}
               />
