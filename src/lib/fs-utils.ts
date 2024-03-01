@@ -2,7 +2,7 @@ import { dirname } from "@tauri-apps/api/path";
 import { open } from "@tauri-apps/plugin-dialog";
 
 export const getImages = async () => {
-  const path = getPathStorage();
+  const path = getPathStorage("folder_path");
 
   return await open({
     multiple: false,
@@ -18,7 +18,7 @@ export const getImages = async () => {
 };
 
 export const getWatermarkImage = async () => {
-  const path = getPathStorage();
+  const path = getPathStorage("wm_path");
   return await open({
     multiple: false,
     title: "Open Image",
@@ -32,13 +32,13 @@ export const getWatermarkImage = async () => {
   });
 };
 
-export async function savePathToStorage(path: string) {
+export async function savePathToStorage(key: string, path: string) {
   const parent = await dirname(path);
-  window.localStorage.setItem("folder_path", path);
+  window.localStorage.setItem(key, path);
   return parent;
 }
 
-function getPathStorage() {
-  const path = window.localStorage.getItem("folder_path");
+function getPathStorage(key: string) {
+  const path = window.localStorage.getItem(key);
   return path;
 }

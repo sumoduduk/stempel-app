@@ -20,14 +20,22 @@ export async function openImage(
 
   let strPath = imageLoc.path;
   if (!strPath) return;
-  savePathToStorage(imageLoc.path);
   if (typeImage == "base") {
     let parent = strPath.split("/");
     parent.pop();
 
     const par = parent.join("/");
 
+    savePathToStorage("folder_path", par);
+
     setFolderSrc(par);
+  } else {
+    let parent = strPath.split("/");
+    parent.pop();
+
+    const par = parent.join("/");
+
+    savePathToStorage("wm_path", par);
   }
   setLoc(imageLoc.path);
   const image = convertFileSrc(imageLoc.path);
