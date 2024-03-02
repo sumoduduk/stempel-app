@@ -1,6 +1,7 @@
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { getImages, getWatermarkImage, savePathToStorage } from "./fs-utils";
 import { Setter } from "solid-js";
+import { showToast } from "../components/ui/toast";
 
 type ImageOpen = "base" | "watermark";
 
@@ -19,7 +20,14 @@ export async function openImage(
   if (!imageLoc) return;
 
   let strPath = imageLoc.path;
-  if (!strPath) return;
+
+  if (!strPath) {
+    showToast({
+      title: "Please specify image path",
+      variant: "destructive",
+    });
+  }
+
   if (typeImage == "base") {
     let parent = strPath.split("/");
     parent.pop();
@@ -37,7 +45,10 @@ export async function openImage(
 
     savePathToStorage("wm_path", par);
   }
+
   setLoc(imageLoc.path);
+
   const image = convertFileSrc(imageLoc.path);
+
   setImage(image);
 }
