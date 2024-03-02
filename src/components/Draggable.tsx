@@ -14,7 +14,7 @@ import { listen } from "@tauri-apps/api/event";
 import stateProgress from "../state/progress";
 import wmState from "../state/wm-state";
 
-export const Dragabale: Component<DragEL> = (props) => {
+export const Draggabale: Component<DragEL> = (props) => {
   const [dimension, setDimension] = createSignal({ w: 0, h: 0 });
   const [dragRef, setDragRef] = createSignal<HTMLDivElement | null>(null);
   const { draggable } = createDraggable();

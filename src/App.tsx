@@ -3,7 +3,7 @@ import { createEffect, createSignal, onCleanup } from "solid-js";
 import { Button } from "./components/ui/button";
 import { convInt, startInvoke } from "./lib/utils";
 import { InvokeParamsType } from "./types/img-types";
-import { Dragabale } from "./components/Draggable";
+import { Draggabale } from "./components/Draggable";
 import { openImage } from "./lib/open-image";
 import { Checkbox } from "./components/ui/checkbox";
 
@@ -77,7 +77,7 @@ function App() {
     await startInvoke(invokePar);
   };
 
-  const onResizeChange = (el: Element, fr: string) => {
+  const onResizeChange = (el: Element) => {
     const { height, width } = el.getBoundingClientRect();
 
     const { wbn: naturalWidth, hbn: naturalHeight } = baseDimensionNatural();
@@ -113,7 +113,7 @@ function App() {
 
       setParentCoor({ x: 0, y: 0 });
 
-      onResizeChange(el, "resize observer");
+      onResizeChange(el);
     });
 
     const element = imgRef();
@@ -152,12 +152,12 @@ function App() {
                   hbn: naturalHeight,
                 });
 
-                onResizeChange(evt.target, "load");
+                onResizeChange(evt.target);
               }}
             />
 
             {waterImg().length > 0 && (
-              <Dragabale
+              <Draggabale
                 scaleVal={finalScale()}
                 setCoordinate={setCoordinate}
                 waterImg={waterImg()!}
