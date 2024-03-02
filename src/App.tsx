@@ -1,9 +1,9 @@
-import { createSignal } from "solid-js";
+import { createEffect, createSignal, onCleanup } from "solid-js";
 
 import { Button } from "./components/ui/button";
 import { convInt, startInvoke } from "./lib/utils";
-import { DimensionType, InvokeParamsType } from "./types/img-types";
-import { Dragabale } from "./components/Draggable";
+import { InvokeParamsType } from "./types/img-types";
+import { Draggabale } from "./components/Draggable";
 import { openImage } from "./lib/open-image";
 import { Checkbox } from "./components/ui/checkbox";
 
@@ -14,12 +14,11 @@ import stateProgress from "./state/progress";
 
 import OpenResize from "./components/OpenResize";
 import { ProgressWm } from "./components/ProgressWm";
+import { Toaster, showToast } from "./components/ui/toast";
+import { getErrorMessage } from "./lib/error";
 
 function App() {
-  const [scaledDimension, setScaledDimension] = createSignal<DimensionType>({
-    w: 0,
-    h: 0,
-  });
+  const [imgRef, setImgRef] = createSignal<HTMLImageElement>();
   const [coordinate, setCoordinate] = createSignal({ x: 0, y: 0 });
   const [baseLoc, setBaseLoc] = createSignal<string>("");
   const [imageBg, setImageBg] = createSignal<string>("");
@@ -32,6 +31,7 @@ function App() {
     baseScale,
     setBaseScale,
     setBaseDimensionScaled,
+    baseDimensionNatural,
     setBaseDimensionNatural,
     setBasePosition,
   } = baseState;
@@ -51,30 +51,111 @@ function App() {
   };
 
   const sendData = async () => {
-    setProgress(0);
-    const basePath = baseLoc();
-    const wtrPath = wtrLoc();
+    try {
+      setProgress(0);
+      setCanProceed(false);
+      const basePath = baseLoc();
+      const wtrPath = wtrLoc();
 
-    if (basePath.length === 0) return;
-    if (wtrPath.length === 0) return;
+      if (basePath.length === 0) {
+        showToast({
+          title: "Error: No Base Image",
+          description: "Please upload base image",
+          variant: "destructive",
+        });
+      }
+      if (wtrPath.length === 0) {
+        showToast({
+          title: "Error: No Watermark Image",
+          description: "Please upload watermark image",
+          variant: "destructive",
+        });
+      }
 
-    // const { w: bw, h: bh } = baseDimension();
-    // const { w: ww, h: hw } = scaledDimension();
-    const { x: cx, y: cy } = coordinate();
+      if (applyFolder()) {
+        showToast({
+          description: <ProgressWm />,
+        });
+      }
 
-    const invokePar: InvokeParamsType = {
-      pathSrc: applyFolder() ? folderSrc() : basePath,
-      waterPath: wtrPath,
-      coordinate: [convInt(cx), convInt(cy)],
-      globalScale: baseScale(),
-      wmScale: finalScale(),
-    };
+      const { x: cx, y: cy } = coordinate();
 
-    console.log("wm scale", scaledDimension());
-    console.log({ invokePar });
-    await startInvoke(invokePar);
-    console.log("Completed");
+      const pathSrc = applyFolder() ? folderSrc() : basePath;
+
+      const invokePar: InvokeParamsType = {
+        pathSrc: pathSrc,
+        waterPath: wtrPath,
+        coordinate: [convInt(cx), convInt(cy)],
+        globalScale: baseScale(),
+        wmScale: finalScale(),
+      };
+
+      await startInvoke(invokePar);
+
+      showToast({
+        title: "Watermark Image Success",
+        description: ` Open folder at ${folderSrc()}`,
+      });
+    } catch (error) {
+      const err = getErrorMessage(error);
+      showToast({
+        title: "Something went wrong",
+        description: err,
+        variant: "destructive",
+      });
+    } finally {
+      setCanProceed(true);
+    }
   };
+
+  const onResizeChange = (el: Element) => {
+    const { height, width } = el.getBoundingClientRect();
+
+    const { wbn: naturalWidth, hbn: naturalHeight } = baseDimensionNatural();
+
+    const ratio = naturalWidth / naturalHeight;
+    let wi = ratio * height;
+    let hi = height;
+    if (wi > width) {
+      wi = width;
+      hi = width / ratio;
+    }
+    const xVal = (width - wi) / 2;
+    const yVal = (height - hi) / 2;
+
+    setBasePosition({
+      l: xVal,
+      r: wi,
+      t: yVal,
+      b: hi,
+    });
+
+    setBaseScale(wi / naturalWidth);
+    setBaseDimensionScaled({
+      wbase: wi,
+      hbase: hi,
+    });
+    setScale([100]);
+  };
+
+  createEffect(() => {
+    const observer = new ResizeObserver((entries) => {
+      const el = entries[0].target;
+
+      onResizeChange(el);
+    });
+
+    const element = imgRef();
+    if (element) {
+      observer.observe(element);
+    }
+
+    onCleanup(() => {
+      if (element) {
+        observer.unobserve(element);
+      }
+    });
+  });
 
   return (
     <>
@@ -88,46 +169,25 @@ function App() {
             <img
               src={imageBg()}
               class="size-full object-contain"
+              ref={setImgRef}
               onLoad={(evt) => {
                 defaultState();
                 const val = evt.currentTarget;
+
                 const { naturalWidth, naturalHeight } = val;
-                const { height, width } = val.getBoundingClientRect();
-
-                const ratio = naturalWidth / naturalHeight;
-                let wi = ratio * height;
-                let hi = height;
-                if (wi > width) {
-                  wi = width;
-                  hi = width / ratio;
-                }
-                const xVal = (width - wi) / 2;
-                const yVal = (height - hi) / 2;
-
-                setBasePosition({
-                  l: xVal,
-                  r: wi,
-                  t: yVal,
-                  b: hi,
-                });
-
-                setBaseScale(wi / naturalWidth);
-                setBaseDimensionScaled({
-                  wbase: wi,
-                  hbase: hi,
-                });
 
                 setBaseDimensionNatural({
                   wbn: naturalWidth,
                   hbn: naturalHeight,
                 });
+
+                onResizeChange(evt.target);
               }}
             />
 
             {waterImg().length > 0 && (
-              <Dragabale
+              <Draggabale
                 scaleVal={finalScale()}
-                setScaledDimension={setScaledDimension}
                 setCoordinate={setCoordinate}
                 waterImg={waterImg()!}
               />
@@ -184,13 +244,11 @@ function App() {
               PROCEED
             </Button>
           </div>
-          <div class="lg:1/2 mx-auto w-3/4">
-            <ProgressWm />
-          </div>
         </div>
       </div>
 
       {waterImg().length > 0 && <OpenResize />}
+      <Toaster />
     </>
   );
 }

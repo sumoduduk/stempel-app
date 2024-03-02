@@ -13,9 +13,9 @@ import { listen } from "@tauri-apps/api/event";
 
 import stateProgress from "../state/progress";
 
-export const Dragabale: Component<DragEL> = (props) => {
+export const Draggabale: Component<DragEL> = (props) => {
   const [dimension, setDimension] = createSignal({ w: 0, h: 0 });
-  const [dragRef, setDragRef] = createSignal<HTMLDivElement | null>(null);
+  const [dragRef, setDragRef] = createSignal<HTMLImageElement | null>(null);
   const { draggable } = createDraggable();
   // {`transition-all duration-700 will-change-[filter] hover:drop-shadow-[0_0_32px_#24c8db] `}
 
@@ -23,16 +23,12 @@ export const Dragabale: Component<DragEL> = (props) => {
   const { basePosition, baseScale } = baseState;
   const { setCanProceed } = proceed;
 
-  const { t: diffY, b: hi, l: diffX, r: wi } = basePosition();
-
   const options: DragOptions = {
     bounds: "parent",
-    onDragEnd: ({ offsetX, offsetY }) => {
+    onDrag: ({ offsetX, offsetY }) => {
+      const { t: diffY, b: hi, l: diffX, r: wi } = basePosition();
       const coorX = offsetX - diffX;
       const coorY = offsetY - diffY;
-      // console.log(basePosition());
-      // console.log({ coorX, coorY });
-      // console.log({ canProceed: canProceed() });
 
       if (coorX < 0 || coorY < 0) {
         return setCanProceed(false);
@@ -41,7 +37,6 @@ export const Dragabale: Component<DragEL> = (props) => {
         return setCanProceed(false);
       }
 
-      console.log("hit");
       setCanProceed(true);
       props.setCoordinate({ x: coorX, y: coorY });
     },
@@ -51,7 +46,6 @@ export const Dragabale: Component<DragEL> = (props) => {
     const unlisten = await listen("progress", (event) => {
       const payload = event.payload as number;
 
-      console.log({ payload });
       setProgress(payload);
     });
 
@@ -61,19 +55,34 @@ export const Dragabale: Component<DragEL> = (props) => {
   });
 
   createEffect(() => {
-    const refDrag = dragRef();
+    let refDrag = dragRef();
     if (!refDrag) return;
     const { w, h } = dimension();
-    // console.log({ w, h });
     if (w === 0) return;
 
-    const sw = parseFloat((w * props.scaleVal).toFixed(1));
-    const sh = parseFloat((h * props.scaleVal).toFixed(1));
+    if (props.scaleVal === 1) {
+      const scaleBase = baseScale();
+      const { naturalWidth, naturalHeight } = refDrag;
 
-    refDrag.style.width = sw + "px";
-    refDrag.style.height = sh + "px";
-    // console.log({ sw, sh });
-    props.setScaledDimension({ w: sw, h: sh });
+      const scaledWidth = naturalWidth * scaleBase;
+      const scaledHeight = naturalHeight * scaleBase;
+
+      setDimension({
+        w: scaledWidth,
+        h: scaledHeight,
+      });
+
+      refDrag.style.width = scaledWidth + "px";
+      refDrag.style.height = scaledHeight + "px";
+
+      setDragRef(refDrag);
+    } else {
+      const sw = parseFloat((w * props.scaleVal).toFixed(1));
+      const sh = parseFloat((h * props.scaleVal).toFixed(1));
+
+      refDrag.style.width = sw + "px";
+      refDrag.style.height = sh + "px";
+    }
   });
 
   return (
@@ -89,16 +98,10 @@ export const Dragabale: Component<DragEL> = (props) => {
         const scaledWidth = naturalWidth * baseScale();
         const scaledHeight = naturalHeight * baseScale();
 
-        console.log({ scaledWidth, scaledHeight });
-
         ev.currentTarget.style.width = scaledWidth + "px";
         ev.currentTarget.style.height = scaledHeight + "px";
 
         setDimension({
-          w: scaledWidth,
-          h: scaledHeight,
-        });
-        props.setScaledDimension({
           w: scaledWidth,
           h: scaledHeight,
         });
