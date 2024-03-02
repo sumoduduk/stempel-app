@@ -14,6 +14,8 @@ import stateProgress from "./state/progress";
 
 import OpenResize from "./components/OpenResize";
 import { ProgressWm } from "./components/ProgressWm";
+import { Toaster, showToast } from "./components/ui/toast";
+import { getErrorMessage } from "./lib/error";
 
 function App() {
   const [imgRef, setImgRef] = createSignal<HTMLImageElement>();
@@ -23,15 +25,7 @@ function App() {
   const [folderSrc, setFolderSrc] = createSignal<string>("");
   const [applyFolder, setApplyFolder] = createSignal(false);
 
-  const {
-    setScale,
-    scale,
-    waterImg,
-    setWaterImg,
-    wtrLoc,
-    setWtrLoc,
-    setParentCoor,
-  } = wmState;
+  const { setScale, scale, waterImg, setWaterImg, wtrLoc, setWtrLoc } = wmState;
 
   const {
     baseScale,
@@ -57,24 +51,61 @@ function App() {
   };
 
   const sendData = async () => {
-    setProgress(0);
-    const basePath = baseLoc();
-    const wtrPath = wtrLoc();
+    try {
+      setProgress(0);
+      setCanProceed(false);
+      const basePath = baseLoc();
+      const wtrPath = wtrLoc();
 
-    if (basePath.length === 0) return;
-    if (wtrPath.length === 0) return;
+      if (basePath.length === 0) {
+        showToast({
+          title: "Error: No Base Image",
+          description: "Please upload base image",
+          variant: "destructive",
+        });
+      }
+      if (wtrPath.length === 0) {
+        showToast({
+          title: "Error: No Watermark Image",
+          description: "Please upload watermark image",
+          variant: "destructive",
+        });
+      }
 
-    const { x: cx, y: cy } = coordinate();
+      if (applyFolder()) {
+        showToast({
+          description: <ProgressWm />,
+        });
+      }
 
-    const invokePar: InvokeParamsType = {
-      pathSrc: applyFolder() ? folderSrc() : basePath,
-      waterPath: wtrPath,
-      coordinate: [convInt(cx), convInt(cy)],
-      globalScale: baseScale(),
-      wmScale: finalScale(),
-    };
+      const { x: cx, y: cy } = coordinate();
 
-    await startInvoke(invokePar);
+      const pathSrc = applyFolder() ? folderSrc() : basePath;
+
+      const invokePar: InvokeParamsType = {
+        pathSrc: pathSrc,
+        waterPath: wtrPath,
+        coordinate: [convInt(cx), convInt(cy)],
+        globalScale: baseScale(),
+        wmScale: finalScale(),
+      };
+
+      await startInvoke(invokePar);
+
+      showToast({
+        title: "Watermark Image Success",
+        description: ` Open folder at ${folderSrc()}`,
+      });
+    } catch (error) {
+      const err = getErrorMessage(error);
+      showToast({
+        title: "Something went wrong",
+        description: err,
+        variant: "destructive",
+      });
+    } finally {
+      setCanProceed(true);
+    }
   };
 
   const onResizeChange = (el: Element) => {
@@ -110,8 +141,6 @@ function App() {
   createEffect(() => {
     const observer = new ResizeObserver((entries) => {
       const el = entries[0].target;
-
-      setParentCoor({ x: 0, y: 0 });
 
       onResizeChange(el);
     });
@@ -215,13 +244,11 @@ function App() {
               PROCEED
             </Button>
           </div>
-          <div class="lg:1/2 mx-auto w-3/4">
-            <ProgressWm />
-          </div>
         </div>
       </div>
 
       {waterImg().length > 0 && <OpenResize />}
+      <Toaster />
     </>
   );
 }
