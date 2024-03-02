@@ -12,25 +12,21 @@ import proceed from "../state/proceed";
 import { listen } from "@tauri-apps/api/event";
 
 import stateProgress from "../state/progress";
-import wmState from "../state/wm-state";
 
 export const Draggabale: Component<DragEL> = (props) => {
   const [dimension, setDimension] = createSignal({ w: 0, h: 0 });
-  const [dragRef, setDragRef] = createSignal<HTMLDivElement | null>(null);
+  const [dragRef, setDragRef] = createSignal<HTMLImageElement | null>(null);
   const { draggable } = createDraggable();
   // {`transition-all duration-700 will-change-[filter] hover:drop-shadow-[0_0_32px_#24c8db] `}
 
   const { setProgress } = stateProgress;
   const { basePosition, baseScale } = baseState;
   const { setCanProceed } = proceed;
-  const { parentCoor, setParentCoor } = wmState;
 
   const options: DragOptions = {
-    position: parentCoor(),
     bounds: "parent",
     onDrag: ({ offsetX, offsetY }) => {
       const { t: diffY, b: hi, l: diffX, r: wi } = basePosition();
-      setParentCoor({ x: offsetX, y: offsetY });
       const coorX = offsetX - diffX;
       const coorY = offsetY - diffY;
 
@@ -59,16 +55,34 @@ export const Draggabale: Component<DragEL> = (props) => {
   });
 
   createEffect(() => {
-    const refDrag = dragRef();
+    let refDrag = dragRef();
     if (!refDrag) return;
     const { w, h } = dimension();
     if (w === 0) return;
 
-    const sw = parseFloat((w * props.scaleVal).toFixed(1));
-    const sh = parseFloat((h * props.scaleVal).toFixed(1));
+    if (props.scaleVal === 1) {
+      const scaleBase = baseScale();
+      const { naturalWidth, naturalHeight } = refDrag;
 
-    refDrag.style.width = sw + "px";
-    refDrag.style.height = sh + "px";
+      const scaledWidth = naturalWidth * scaleBase;
+      const scaledHeight = naturalHeight * scaleBase;
+
+      setDimension({
+        w: scaledWidth,
+        h: scaledHeight,
+      });
+
+      refDrag.style.width = scaledWidth + "px";
+      refDrag.style.height = scaledHeight + "px";
+
+      setDragRef(refDrag);
+    } else {
+      const sw = parseFloat((w * props.scaleVal).toFixed(1));
+      const sh = parseFloat((h * props.scaleVal).toFixed(1));
+
+      refDrag.style.width = sw + "px";
+      refDrag.style.height = sh + "px";
+    }
   });
 
   return (
