@@ -5,7 +5,6 @@ type posBase = { left: number; right: number };
 export type DimPos = posBase & DimensionType;
 export type DragEL = {
   children?: JSX.Element;
-  scaleVal: number;
   setCoordinate: Setter<{ x: number; y: number }>;
   waterImg: string;
 };
