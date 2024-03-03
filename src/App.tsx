@@ -1,4 +1,4 @@
-import { createEffect, createSignal, onCleanup } from "solid-js";
+import { Show, createEffect, createSignal, onCleanup } from "solid-js";
 
 import { Button } from "./components/ui/button";
 import { convInt, startInvoke } from "./lib/utils";
@@ -16,6 +16,7 @@ import OpenResize from "./components/OpenResize";
 import { ProgressWm } from "./components/ProgressWm";
 import { Toaster, showToast } from "./components/ui/toast";
 import { getErrorMessage } from "./lib/error";
+import Spinner from "./components/spinner";
 
 function App() {
   const [imgRef, setImgRef] = createSignal<HTMLImageElement>();
@@ -74,7 +75,13 @@ function App() {
 
       if (applyFolder()) {
         showToast({
+          title: (
+            <div class="flex w-full">
+              <h3>Processing...</h3> <Spinner width="4" height="4" />
+            </div>
+          ),
           description: <ProgressWm />,
+          persistent: true,
         });
       }
 
@@ -139,6 +146,7 @@ function App() {
   };
 
   createEffect(() => {
+    console.log("resize");
     const observer = new ResizeObserver((entries) => {
       const el = entries[0].target;
 
@@ -160,7 +168,15 @@ function App() {
   return (
     <>
       <div class="absolute m-3 size-full justify-center gap-6 bg-inherit p-16 text-center text-neutral-200">
-        {imageBg().length > 0 ? (
+        <Show
+          when={imageBg().length > 0}
+          fallback={
+            <div class="flex h-1/2 w-full flex-col items-center justify-center">
+              <h1 class="text-3xl">STEMPEL</h1>
+              <h2 class="text-lg">Fast Image Watermarker</h2>
+            </div>
+          }
+        >
           <div
             class={`relative h-2/3 outline outline-1 ${
               canProceed() ? "outline-white" : "outline-red-600"
@@ -185,20 +201,14 @@ function App() {
               }}
             />
 
-            {waterImg().length > 0 && (
+            <Show when={waterImg().length > 0}>
               <Draggabale
-                scaleVal={finalScale()}
                 setCoordinate={setCoordinate}
                 waterImg={waterImg()!}
               />
-            )}
+            </Show>
           </div>
-        ) : (
-          <div class="flex h-1/2 w-full flex-col items-center justify-center">
-            <h1 class="text-3xl">STEMPEL</h1>
-            <h2 class="text-lg">Fast Image Watermarker</h2>
-          </div>
-        )}
+        </Show>
 
         {/* <p class="terxt-3xl p-6 text-neutral-300">Fast Image Watermark</p> */}
 
@@ -247,7 +257,9 @@ function App() {
         </div>
       </div>
 
-      {waterImg().length > 0 && <OpenResize />}
+      {/* <Show when={waterImg().length > 0}> */}
+      <OpenResize />
+      {/* </Show> */}
       <Toaster />
     </>
   );
