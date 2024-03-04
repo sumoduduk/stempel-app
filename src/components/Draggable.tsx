@@ -12,6 +12,7 @@ import proceed from "../state/proceed";
 import { listen } from "@tauri-apps/api/event";
 
 import stateProgress from "../state/progress";
+import wmState from "../state/wm-state";
 
 export const Draggabale: Component<DragEL> = (props) => {
   const [dimension, setDimension] = createSignal({ w: 0, h: 0 });
@@ -22,6 +23,8 @@ export const Draggabale: Component<DragEL> = (props) => {
   const { setProgress } = stateProgress;
   const { basePosition, baseScale } = baseState;
   const { setCanProceed } = proceed;
+
+  const { scale } = wmState;
 
   const options: DragOptions = {
     bounds: "parent",
@@ -57,15 +60,22 @@ export const Draggabale: Component<DragEL> = (props) => {
   createEffect(() => {
     let refDrag = dragRef();
     if (!refDrag) return;
+
     const { w, h } = dimension();
     if (w === 0) return;
 
-    if (props.scaleVal === 1) {
+    const scaleVal = parseFloat((scale()[0] / 100).toFixed(1));
+
+    if (scaleVal === 1) {
       const scaleBase = baseScale();
       const { naturalWidth, naturalHeight } = refDrag;
 
       const scaledWidth = naturalWidth * scaleBase;
       const scaledHeight = naturalHeight * scaleBase;
+
+      if (scaledWidth === w || scaledHeight === h) {
+        return;
+      }
 
       setDimension({
         w: scaledWidth,
@@ -77,11 +87,13 @@ export const Draggabale: Component<DragEL> = (props) => {
 
       setDragRef(refDrag);
     } else {
-      const sw = parseFloat((w * props.scaleVal).toFixed(1));
-      const sh = parseFloat((h * props.scaleVal).toFixed(1));
+      const sw = parseFloat((w * scaleVal).toFixed(1));
+      const sh = parseFloat((h * scaleVal).toFixed(1));
 
       refDrag.style.width = sw + "px";
       refDrag.style.height = sh + "px";
+
+      setDragRef(refDrag);
     }
   });
 
