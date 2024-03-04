@@ -25,6 +25,12 @@ serde_json = "1.0"
 image = { version = "0.24.7", features = ["webp-encoder"] }
 eyre = "0.6.12"
 
+[profile.release]
+strip = true
+opt-level = "s"
+lto  = true
+codegen-units = 1
+
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
 # DO NOT REMOVE!!
