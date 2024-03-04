@@ -73,7 +73,7 @@ export const Draggabale: Component<DragEL> = (props) => {
       const scaledWidth = naturalWidth * scaleBase;
       const scaledHeight = naturalHeight * scaleBase;
 
-      if (scaledWidth === w || scaledHeight === h) {
+      if (scaledWidth === w && scaledHeight === h) {
         return;
       }
 
