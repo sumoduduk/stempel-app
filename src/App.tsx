@@ -11,19 +11,18 @@ import wmState from "./state/wm-state";
 import baseState from "./state/base-state";
 import proceed from "./state/proceed";
 import stateProgress from "./state/progress";
+import imgState from "./state/img-state";
 
 import OpenResize from "./components/OpenResize";
 import { ProgressWm } from "./components/ProgressWm";
 import { Toaster, showToast } from "./components/ui/toast";
 import { getErrorMessage } from "./lib/error";
 import Spinner from "./components/spinner";
+import Hero from "./components/hero";
 
 function App() {
   const [imgRef, setImgRef] = createSignal<HTMLImageElement>();
   const [coordinate, setCoordinate] = createSignal({ x: 0, y: 0 });
-  const [baseLoc, setBaseLoc] = createSignal<string>("");
-  const [imageBg, setImageBg] = createSignal<string>("");
-  const [folderSrc, setFolderSrc] = createSignal<string>("");
   const [applyFolder, setApplyFolder] = createSignal(false);
 
   const { setScale, scale, waterImg, setWaterImg, wtrLoc, setWtrLoc } = wmState;
@@ -36,6 +35,9 @@ function App() {
     setBaseDimensionNatural,
     setBasePosition,
   } = baseState;
+
+  const { baseLoc, setBaseLoc, imageBg, setImageBg, folderSrc, setFolderSrc } =
+    imgState;
 
   const { canProceed, setCanProceed } = proceed;
   const { setProgress } = stateProgress;
@@ -170,15 +172,7 @@ function App() {
   return (
     <>
       <div class="absolute m-3 size-full justify-center gap-6 bg-inherit p-16 text-center text-neutral-200">
-        <Show
-          when={imageBg().length > 0}
-          fallback={
-            <div class="flex h-1/2 w-full flex-col items-center justify-center">
-              <h1 class="text-3xl">STEMPEL</h1>
-              <h2 class="text-lg">Fast Image Watermarker</h2>
-            </div>
-          }
-        >
+        <Show when={imageBg().length > 0} fallback={<Hero />}>
           <div
             class={`relative h-2/3 outline outline-1 ${
               canProceed() ? "outline-white" : "outline-red-600"
@@ -259,9 +253,9 @@ function App() {
         </div>
       </div>
 
-      {/* <Show when={waterImg().length > 0}> */}
-      <OpenResize />
-      {/* </Show> */}
+      <Show when={waterImg().length > 0}>
+        <OpenResize />
+      </Show>
       <Toaster />
     </>
   );
