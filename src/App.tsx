@@ -19,6 +19,7 @@ import { Toaster, showToast } from "./components/ui/toast";
 import { getErrorMessage } from "./lib/error";
 import Spinner from "./components/spinner";
 import Hero from "./components/hero";
+import Brand from "./components/Brand";
 
 function App() {
   const [imgRef, setImgRef] = createSignal<HTMLImageElement>();
@@ -171,7 +172,8 @@ function App() {
 
   return (
     <>
-      <div class="absolute m-3 size-full justify-center gap-6 bg-inherit p-16 text-center text-neutral-200">
+      <Brand />
+      <div class="absolute m-3 size-full justify-center gap-6 bg-inherit p-16 text-center text-neutral-200 opacity-90">
         <Show when={imageBg().length > 0} fallback={<Hero />}>
           <div
             class={`relative h-2/3 outline outline-1 ${
@@ -180,7 +182,7 @@ function App() {
           >
             <img
               src={imageBg()}
-              class="size-full object-contain"
+              class="size-full bg-background/80 object-contain"
               ref={setImgRef}
               onLoad={(evt) => {
                 defaultState();
@@ -206,13 +208,11 @@ function App() {
           </div>
         </Show>
 
-        {/* <p class="terxt-3xl p-6 text-neutral-300">Fast Image Watermark</p> */}
-
-        <div class="flex h-1/3 w-full flex-col items-center justify-center space-y-1">
-          <div class="flex w-full items-center justify-center space-x-4 p-10">
-            <div class="flex w-full">
+        <div class="flex h-1/3 w-full flex-col items-center justify-center space-y-3">
+          <div class="flex w-full items-center justify-center space-x-4 px-10 py-4">
+            <div class="flex w-1/2">
               <Button
-                class="w-1/3"
+                class="w-1/3 text-xs md:text-sm"
                 onClick={() =>
                   openImage(setBaseLoc, setImageBg, setFolderSrc, "base")
                 }
@@ -224,9 +224,9 @@ function App() {
               </div>
             </div>
 
-            <div class="flex w-full">
+            <div class="flex w-1/2">
               <Button
-                class="w-1/3"
+                class="w-1/3 text-xs md:text-sm"
                 onClick={() =>
                   openImage(setWtrLoc, setWaterImg, setFolderSrc, "watermark")
                 }
@@ -240,13 +240,17 @@ function App() {
             </div>
           </div>
 
-          <div class="mx-auto flex items-center justify-center space-x-2">
+          <div class="mx-auto my-4 flex items-center justify-center space-x-2">
             <Checkbox checked={applyFolder()} onChange={setApplyFolder} />
             <h3 class="m-auto">Apply to all image in folder ?</h3>
           </div>
 
-          <div class="mt-4">
-            <Button onClick={sendData} disabled={!canProceed()}>
+          <div class="pt-4">
+            <Button
+              variant="secondary"
+              onClick={sendData}
+              disabled={!canProceed()}
+            >
               PROCEED
             </Button>
           </div>
