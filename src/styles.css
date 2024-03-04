@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Neue Montreal";
+  src: url("./assets/fonts/montreal/index.ttf");
+}
+
 @layer base {
   :root {
     /* --background: 0 0% 100%; */
@@ -101,6 +106,7 @@
     @apply border-border;
   }
   body {
+    font-family: "Neue Montreal", sans-serif;
     position: relative;
     height: 100vh;
     overflow: hidden;
