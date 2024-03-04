@@ -130,6 +130,8 @@ function App() {
     const xVal = (width - wi) / 2;
     const yVal = (height - hi) / 2;
 
+    setCanProceed(false);
+
     setBasePosition({
       l: xVal,
       r: wi,
