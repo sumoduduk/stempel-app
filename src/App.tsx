@@ -249,17 +249,31 @@ function App() {
 
           <div class="mx-auto my-4 flex items-center justify-center space-x-2">
             <Checkbox checked={applyFolder()} onChange={setApplyFolder} />
-            <h3 class="m-auto">Apply to all image in folder ?</h3>
+            <h3 class="m-auto select-none">Apply to all image in folder ?</h3>
           </div>
 
           <div class="pt-4">
-            <Button
-              variant="secondary"
-              onClick={sendData}
-              disabled={!canProceed()}
+            <Show
+              when={canProceed()}
+              fallback={
+                <Button
+                  variant="secondary"
+                  onClick={sendData}
+                  disabled={!canProceed()}
+                  class="h-12 border border-neutral-200 bg-transparent px-6 text-neutral-600"
+                >
+                  PROCEED
+                </Button>
+              }
             >
-              PROCEED
-            </Button>
+              <button
+                onClick={sendData}
+                disabled={!canProceed()}
+                class="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-md border border-neutral-200 bg-transparent px-6 font-medium text-neutral-600 transition-all duration-100 [box-shadow:5px_5px_rgb(82_82_82)] active:translate-x-[3px] active:translate-y-[3px] active:[box-shadow:0px_0px_rgb(82_82_82)]"
+              >
+                PROCEED
+              </button>
+            </Show>
           </div>
         </div>
       </div>
