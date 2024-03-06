@@ -39,8 +39,8 @@
         "fullscreen": false,
         "resizable": true,
         "title": "Stempel",
-        "width": 720,
-        "height": 1080
+        "width": 600,
+        "height": 800
       }
     ]
   },
