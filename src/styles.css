@@ -106,6 +106,12 @@
     @apply border-border;
   }
   body {
+    background: linear-gradient(
+      to left,
+      rgb(55, 65, 81),
+      rgb(17, 24, 39),
+      rgb(0, 0, 0)
+    );
     font-family: "Neue Montreal", sans-serif;
     position: relative;
     height: 100vh;
