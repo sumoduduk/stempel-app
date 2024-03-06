@@ -1,5 +1,5 @@
 import type { Component, JSX } from "solid-js";
-import { splitProps } from "solid-js";
+import { Show, splitProps } from "solid-js";
 import { Portal } from "solid-js/web";
 
 import { toaster, Toast as ToastPrimitive } from "@kobalte/core";
@@ -16,7 +16,7 @@ const Toaster: Component<ToastPrimitive.ToastListProps> = (props) => {
       <ToastPrimitive.Region>
         <ToastPrimitive.List
           class={cn(
-            "fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse gap-2 p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]",
+            "fixed right-0 top-0 z-[100] flex max-h-screen w-2/3 flex-col-reverse gap-2 p-4 sm:bottom-0 sm:top-auto sm:flex-col md:max-w-[420px]",
             props.class,
           )}
           {...rest}
@@ -109,10 +109,12 @@ function showToast(props: {
       persistent={props.persistent}
     >
       <div class="flex w-full flex-col">
-        {props.title && <ToastTitle>{props.title}</ToastTitle>}
-        {props.description && (
+        <Show when={props.title}>
+          <ToastTitle>{props.title}</ToastTitle>
+        </Show>
+        <Show when={props.description}>
           <ToastDescription>{props.description}</ToastDescription>
-        )}
+        </Show>
       </div>
       <ToastClose />
     </Toast>
