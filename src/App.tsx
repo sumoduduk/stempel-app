@@ -80,9 +80,14 @@ function App() {
       if (applyFolder()) {
         showToast({
           title: (
-            <div class="flex w-full">
-              <h3>Processing...</h3> <Spinner width="4" height="4" />
-            </div>
+            <Show
+              when={!canProceed()}
+              fallback={<h1 class="font-bold">Complete</h1>}
+            >
+              <div class="flex w-full">
+                <h3>Processing...</h3> <Spinner width="4" height="4" />
+              </div>
+            </Show>
           ),
           description: <ProgressWm />,
           persistent: true,
@@ -105,7 +110,7 @@ function App() {
       const pretyMilis = prettyMilliseconds(milis);
 
       showToast({
-        title: "Finished at " + pretyMilis,
+        title: "Finished in " + pretyMilis,
         description: `Open folder at ${folderSrc()}`,
       });
     } catch (error) {
@@ -211,24 +216,24 @@ function App() {
         </Show>
 
         <div class="flex h-1/3 w-full flex-col items-center justify-center space-y-3">
-          <div class="flex w-full items-center justify-center space-x-4 px-10 py-4">
+          <div class="flex w-full items-center justify-between space-x-4 py-4 lg:px-10">
             <div class="flex w-1/2">
               <Button
-                class="w-1/3 text-xs md:text-sm"
+                class="w-1/3 rounded-r-none border text-xs md:text-sm"
                 onClick={() =>
                   openImage(setBaseLoc, setImageBg, setFolderSrc, "base")
                 }
               >
                 Open Image
               </Button>
-              <div class="flex w-full items-center rounded-r-lg bg-white py-1 text-start text-gray-800">
-                <p class="truncate">{folderSrc()}</p>
+              <div class="flex w-2/3 items-center rounded-r-lg bg-white py-1 text-start text-gray-800">
+                <p class="w-fit truncate">{folderSrc()}</p>
               </div>
             </div>
 
             <div class="flex w-1/2">
               <Button
-                class="w-1/3 text-xs md:text-sm"
+                class="w-1/3 rounded-r-none border text-xs md:text-sm"
                 onClick={() =>
                   openImage(setWtrLoc, setWaterImg, setFolderSrc, "watermark")
                 }
@@ -236,8 +241,8 @@ function App() {
               >
                 Load Watermark
               </Button>
-              <div class="flex w-full items-center rounded-r-lg bg-white py-1 text-start text-gray-800">
-                <p class="truncate">{wtrLoc()}</p>
+              <div class="flex w-2/3 items-center rounded-r-md bg-white py-1 text-start text-gray-800">
+                <p class="w-fit truncate">{wtrLoc()}</p>
               </div>
             </div>
           </div>
