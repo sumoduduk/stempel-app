@@ -20,6 +20,7 @@ import { getErrorMessage } from "./lib/error";
 import Spinner from "./components/spinner";
 import Hero from "./components/hero";
 import Brand from "./components/Brand";
+import prettyMilliseconds from "pretty-ms";
 
 function App() {
   const [imgRef, setImgRef] = createSignal<HTMLImageElement>();
@@ -100,11 +101,12 @@ function App() {
         wmScale: finalScale(),
       };
 
-      await startInvoke(invokePar);
+      const milis = (await startInvoke(invokePar)) as number;
+      const pretyMilis = prettyMilliseconds(milis);
 
       showToast({
-        title: "Watermark Image Success",
-        description: ` Open folder at ${folderSrc()}`,
+        title: "Finished at " + pretyMilis,
+        description: `Open folder at ${folderSrc()}`,
       });
     } catch (error) {
       const err = getErrorMessage(error);
