@@ -21,6 +21,7 @@ import Spinner from "./components/spinner";
 import Hero from "./components/hero";
 import Brand from "./components/Brand";
 import prettyMilliseconds from "pretty-ms";
+import lang from "~/assets/lang.json";
 
 function App() {
   const [imgRef, setImgRef] = createSignal<HTMLImageElement>();
@@ -82,10 +83,10 @@ function App() {
           title: (
             <Show
               when={!canProceed()}
-              fallback={<h1 class="font-bold">Complete</h1>}
+              fallback={<h1 class="font-bold">{lang.complete_process.eng}</h1>}
             >
               <div class="flex w-full">
-                <h3>Processing...</h3> <Spinner width="4" height="4" />
+                <h3>{lang.processing.eng}</h3> <Spinner width="4" height="4" />
               </div>
             </Show>
           ),
@@ -224,7 +225,7 @@ function App() {
                   openImage(setBaseLoc, setImageBg, setFolderSrc, "base")
                 }
               >
-                Open Image
+                {lang.open_img.eng}
               </Button>
               <div class="flex w-2/3 items-center rounded-r-lg bg-white py-1 text-start text-gray-800">
                 <p class="w-fit truncate">{folderSrc()}</p>
@@ -239,7 +240,7 @@ function App() {
                 }
                 disabled={imageBg().length === 0}
               >
-                Load Watermark
+                {lang.open_watermark.eng}
               </Button>
               <div class="flex w-2/3 items-center rounded-r-md bg-white py-1 text-start text-gray-800">
                 <p class="w-fit truncate">{wtrLoc()}</p>
@@ -249,7 +250,7 @@ function App() {
 
           <div class="mx-auto my-4 flex items-center justify-center space-x-2">
             <Checkbox checked={applyFolder()} onChange={setApplyFolder} />
-            <h3 class="m-auto select-none">Apply to all image in folder ?</h3>
+            <h3 class="m-auto select-none">{lang.apply_folder.eng}</h3>
           </div>
 
           <div class="pt-4">
@@ -262,7 +263,7 @@ function App() {
                   disabled={!canProceed()}
                   class="h-12 border border-neutral-200 bg-transparent px-6 text-neutral-600"
                 >
-                  PROCEED
+                  {lang.proceed.eng}
                 </Button>
               }
             >
@@ -271,7 +272,7 @@ function App() {
                 disabled={!canProceed()}
                 class="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-md border border-neutral-200 bg-transparent px-6 font-medium text-neutral-200 transition-all duration-100 [box-shadow:5px_5px_rgb(82_82_82)] active:translate-x-[3px] active:translate-y-[3px] active:[box-shadow:0px_0px_rgb(82_82_82)]"
               >
-                PROCEED
+                {lang.proceed.eng}
               </button>
             </Show>
           </div>
