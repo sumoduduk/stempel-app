@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import solidPlugin from "vite-plugin-solid";
 import { internalIpV4 } from "internal-ip";
+import path from "path";
 
 // @ts-expect-error process is a nodejs global
 const mobile = !!/android|ios/.exec(process.env.TAURI_ENV_PLATFORM);
@@ -11,6 +12,11 @@ export default defineConfig(async () => {
 
   return {
     plugins: [solidPlugin()],
+    resolve: {
+      alias: {
+        "~": path.resolve(__dirname, "./src/"),
+      },
+    },
 
     // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
     //
