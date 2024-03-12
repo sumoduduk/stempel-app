@@ -32,6 +32,7 @@ import NotFound from "./routes/not-found";
 import stateRoute from "./state/state-route";
 import About from "./routes/about";
 import Nav from "./components/Nav";
+import lang from "~/assets/lang.json";
 
 function App() {
   const [imgRef, setImgRef] = createSignal<HTMLImageElement>();
@@ -57,6 +58,9 @@ function App() {
   const { canProceed, setCanProceed } = proceed;
   const { setProgress } = stateProgress;
 
+  const { error_msg } = lang;
+  const { error_base, error_watermark } = error_msg;
+
   const finalScale = () => parseFloat((scale()[0] / 100).toFixed(1));
 
   const defaultState = () => {
@@ -77,15 +81,16 @@ function App() {
 
       if (basePath.length === 0) {
         showToast({
-          title: "Error: No Base Image",
-          description: "Please upload base image",
+          title: error_base.title.eng,
+          description: error_base.descriptions.eng,
           variant: "destructive",
         });
       }
+
       if (wtrPath.length === 0) {
         showToast({
-          title: "Error: No Watermark Image",
-          description: "Please upload watermark image",
+          title: error_watermark.title.eng,
+          description: error_watermark.descriptions.eng,
           variant: "destructive",
         });
       }
@@ -95,10 +100,10 @@ function App() {
           title: (
             <Show
               when={!canProceed()}
-              fallback={<h1 class="font-bold">Complete</h1>}
+              fallback={<h1 class="font-bold">{lang.complete_process.eng}</h1>}
             >
               <div class="flex w-full">
-                <h3>Processing...</h3> <Spinner width="4" height="4" />
+                <h3>{lang.processing.eng}</h3> <Spinner width="4" height="4" />
               </div>
             </Show>
           ),
@@ -123,13 +128,13 @@ function App() {
       const pretyMilis = prettyMilliseconds(milis);
 
       showToast({
-        title: "Finished in " + pretyMilis,
-        description: `Open folder at ${folderSrc()}`,
+        title: lang.finished.title.eng + " " + pretyMilis,
+        description: lang.finished.descriptions.eng + " " + folderSrc(),
       });
     } catch (error) {
       const err = getErrorMessage(error);
       showToast({
-        title: "Something went wrong",
+        title: error_msg.error_something.title.eng,
         description: err,
         variant: "destructive",
       });
@@ -240,7 +245,7 @@ function App() {
                       openImage(setBaseLoc, setImageBg, setFolderSrc, "base")
                     }
                   >
-                    Open Image
+                    {lang.open_img.eng}
                   </Button>
                   <div class="flex w-2/3 items-center rounded-r-lg bg-white py-1 text-start text-gray-800">
                     <p class="w-fit truncate">{folderSrc()}</p>
@@ -260,7 +265,7 @@ function App() {
                     }
                     disabled={imageBg().length === 0}
                   >
-                    Load Watermark
+                    {lang.open_watermark.eng}
                   </Button>
                   <div class="flex w-2/3 items-center rounded-r-md bg-white py-1 text-start text-gray-800">
                     <p class="w-fit truncate">{wtrLoc()}</p>
@@ -270,9 +275,7 @@ function App() {
 
               <div class="mx-auto my-4 flex items-center justify-center space-x-2">
                 <Checkbox checked={applyFolder()} onChange={setApplyFolder} />
-                <h3 class="m-auto select-none">
-                  Apply to all image in folder ?
-                </h3>
+                <h3 class="m-auto select-none">{lang.apply_folder.eng}</h3>
               </div>
 
               <div class="pt-4">
@@ -285,7 +288,7 @@ function App() {
                       disabled={!canProceed()}
                       class="h-12 border border-neutral-200 bg-transparent px-6 text-neutral-600"
                     >
-                      PROCEED
+                      {lang.proceed.eng}
                     </Button>
                   }
                 >
@@ -294,7 +297,7 @@ function App() {
                     disabled={!canProceed()}
                     class="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-md border border-neutral-200 bg-transparent px-6 font-medium text-neutral-200 transition-all duration-100 [box-shadow:5px_5px_rgb(82_82_82)] active:translate-x-[3px] active:translate-y-[3px] active:[box-shadow:0px_0px_rgb(82_82_82)]"
                   >
-                    PROCEED
+                    {lang.proceed.eng}
                   </button>
                 </Show>
               </div>
