@@ -1,4 +1,11 @@
-import { Show, createEffect, createSignal, onCleanup } from "solid-js";
+import {
+  Match,
+  Show,
+  Switch,
+  createEffect,
+  createSignal,
+  onCleanup,
+} from "solid-js";
 
 import { Button } from "./components/ui/button";
 import { convInt, startInvoke } from "./lib/utils";
@@ -21,6 +28,10 @@ import Spinner from "./components/spinner";
 import Hero from "./components/hero";
 import Brand from "./components/Brand";
 import prettyMilliseconds from "pretty-ms";
+import NotFound from "./routes/not-found";
+import stateRoute from "./state/state-route";
+import About from "./routes/about";
+import Nav from "./components/Nav";
 
 function App() {
   const [imgRef, setImgRef] = createSignal<HTMLImageElement>();
@@ -28,6 +39,8 @@ function App() {
   const [applyFolder, setApplyFolder] = createSignal(false);
 
   const { setScale, scale, waterImg, setWaterImg, wtrLoc, setWtrLoc } = wmState;
+
+  const { route } = stateRoute;
 
   const {
     baseScale,
@@ -180,102 +193,117 @@ function App() {
   return (
     <>
       <Brand />
-      <div class="absolute m-3 size-full justify-center gap-6 bg-inherit p-16 text-center text-neutral-200 opacity-90">
-        <Show when={imageBg().length > 0} fallback={<Hero />}>
-          <div
-            class={`relative h-2/3 outline outline-1 ${
-              canProceed() ? "outline-white" : "outline-red-600"
-            }`}
-          >
-            <img
-              src={imageBg()}
-              class="size-full bg-background/80 object-contain"
-              ref={setImgRef}
-              onLoad={(evt) => {
-                defaultState();
-                const val = evt.currentTarget;
+      <div class="absolute m-3 size-full justify-center gap-6 bg-inherit p-8 text-center text-neutral-200 opacity-90">
+        <Nav />
+        <Switch fallback={<NotFound />}>
+          <Match when={route() === "home"}>
+            <Show when={imageBg().length > 0} fallback={<Hero />}>
+              <div
+                class={`relative h-2/3 outline outline-1 ${
+                  canProceed() ? "outline-white" : "outline-red-600"
+                }`}
+              >
+                <img
+                  src={imageBg()}
+                  class="size-full bg-background/80 object-contain"
+                  ref={setImgRef}
+                  onLoad={(evt) => {
+                    defaultState();
+                    const val = evt.currentTarget;
 
-                const { naturalWidth, naturalHeight } = val;
+                    const { naturalWidth, naturalHeight } = val;
 
-                setBaseDimensionNatural({
-                  wbn: naturalWidth,
-                  hbn: naturalHeight,
-                });
+                    setBaseDimensionNatural({
+                      wbn: naturalWidth,
+                      hbn: naturalHeight,
+                    });
 
-                onResizeChange(evt.target);
-              }}
-            />
+                    onResizeChange(evt.target);
+                  }}
+                />
 
-            <Show when={waterImg().length > 0}>
-              <Draggabale
-                setCoordinate={setCoordinate}
-                waterImg={waterImg()!}
-              />
+                <Show when={waterImg().length > 0}>
+                  <Draggabale
+                    setCoordinate={setCoordinate}
+                    waterImg={waterImg()!}
+                  />
+                </Show>
+              </div>
             </Show>
-          </div>
-        </Show>
 
-        <div class="flex h-1/3 w-full flex-col items-center justify-center space-y-3">
-          <div class="flex w-full items-center justify-between space-x-4 py-4 lg:px-10">
-            <div class="flex w-1/2">
-              <Button
-                class="w-1/3 rounded-r-none border text-xs md:text-sm"
-                onClick={() =>
-                  openImage(setBaseLoc, setImageBg, setFolderSrc, "base")
-                }
-              >
-                Open Image
-              </Button>
-              <div class="flex w-2/3 items-center rounded-r-lg bg-white py-1 text-start text-gray-800">
-                <p class="w-fit truncate">{folderSrc()}</p>
+            <div class="flex h-1/3 w-full flex-col items-center justify-center space-y-3">
+              <div class="flex w-full items-center justify-between space-x-4 py-4 lg:px-10">
+                <div class="flex w-1/2">
+                  <Button
+                    class="w-1/3 rounded-r-none border text-xs md:text-sm"
+                    onClick={() =>
+                      openImage(setBaseLoc, setImageBg, setFolderSrc, "base")
+                    }
+                  >
+                    Open Image
+                  </Button>
+                  <div class="flex w-2/3 items-center rounded-r-lg bg-white py-1 text-start text-gray-800">
+                    <p class="w-fit truncate">{folderSrc()}</p>
+                  </div>
+                </div>
+
+                <div class="flex w-1/2">
+                  <Button
+                    class="w-1/3 rounded-r-none border text-xs md:text-sm"
+                    onClick={() =>
+                      openImage(
+                        setWtrLoc,
+                        setWaterImg,
+                        setFolderSrc,
+                        "watermark",
+                      )
+                    }
+                    disabled={imageBg().length === 0}
+                  >
+                    Load Watermark
+                  </Button>
+                  <div class="flex w-2/3 items-center rounded-r-md bg-white py-1 text-start text-gray-800">
+                    <p class="w-fit truncate">{wtrLoc()}</p>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div class="flex w-1/2">
-              <Button
-                class="w-1/3 rounded-r-none border text-xs md:text-sm"
-                onClick={() =>
-                  openImage(setWtrLoc, setWaterImg, setFolderSrc, "watermark")
-                }
-                disabled={imageBg().length === 0}
-              >
-                Load Watermark
-              </Button>
-              <div class="flex w-2/3 items-center rounded-r-md bg-white py-1 text-start text-gray-800">
-                <p class="w-fit truncate">{wtrLoc()}</p>
+              <div class="mx-auto my-4 flex items-center justify-center space-x-2">
+                <Checkbox checked={applyFolder()} onChange={setApplyFolder} />
+                <h3 class="m-auto select-none">
+                  Apply to all image in folder ?
+                </h3>
               </div>
-            </div>
-          </div>
 
-          <div class="mx-auto my-4 flex items-center justify-center space-x-2">
-            <Checkbox checked={applyFolder()} onChange={setApplyFolder} />
-            <h3 class="m-auto select-none">Apply to all image in folder ?</h3>
-          </div>
-
-          <div class="pt-4">
-            <Show
-              when={canProceed()}
-              fallback={
-                <Button
-                  variant="secondary"
-                  onClick={sendData}
-                  disabled={!canProceed()}
-                  class="h-12 border border-neutral-200 bg-transparent px-6 text-neutral-600"
+              <div class="pt-4">
+                <Show
+                  when={canProceed()}
+                  fallback={
+                    <Button
+                      variant="secondary"
+                      onClick={sendData}
+                      disabled={!canProceed()}
+                      class="h-12 border border-neutral-200 bg-transparent px-6 text-neutral-600"
+                    >
+                      PROCEED
+                    </Button>
+                  }
                 >
-                  PROCEED
-                </Button>
-              }
-            >
-              <button
-                onClick={sendData}
-                disabled={!canProceed()}
-                class="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-md border border-neutral-200 bg-transparent px-6 font-medium text-neutral-200 transition-all duration-100 [box-shadow:5px_5px_rgb(82_82_82)] active:translate-x-[3px] active:translate-y-[3px] active:[box-shadow:0px_0px_rgb(82_82_82)]"
-              >
-                PROCEED
-              </button>
-            </Show>
-          </div>
-        </div>
+                  <button
+                    onClick={sendData}
+                    disabled={!canProceed()}
+                    class="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-md border border-neutral-200 bg-transparent px-6 font-medium text-neutral-200 transition-all duration-100 [box-shadow:5px_5px_rgb(82_82_82)] active:translate-x-[3px] active:translate-y-[3px] active:[box-shadow:0px_0px_rgb(82_82_82)]"
+                  >
+                    PROCEED
+                  </button>
+                </Show>
+              </div>
+            </div>
+          </Match>
+          <Match when={route() === "about"}>
+            <About />
+          </Match>
+        </Switch>
       </div>
 
       <Show when={waterImg().length > 0}>
