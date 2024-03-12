@@ -9,7 +9,6 @@ import { JSXElement } from "solid-js";
 import { ResizeSlider } from "./ResizeSlider";
 import wmState from "../state/wm-state";
 import { Button } from "./ui/button";
-import lang from "~/assets/lang.json";
 
 const OpenButton = ({ children }: { children: JSXElement }) => {
   return (
@@ -24,12 +23,12 @@ export default function OpenResize() {
   return (
     <Sheet>
       <SheetTrigger>
-        <OpenButton>{lang.open_resize.eng}</OpenButton>
+        <OpenButton>Resize Watermark</OpenButton>
       </SheetTrigger>
 
       <SheetContent size="sm" position="bottom" class="flex flex-col space-y-8">
         <SheetHeader class="flex w-full justify-center text-white">
-          <SheetTitle class="text-center">{lang.open_resize.eng}</SheetTitle>
+          <SheetTitle class="text-center">Resize Watermark</SheetTitle>
         </SheetHeader>
         <ResizeSlider scale={scale} setScale={setScale} />
       </SheetContent>

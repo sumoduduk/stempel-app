@@ -32,7 +32,6 @@ import NotFound from "./routes/not-found";
 import stateRoute from "./state/state-route";
 import About from "./routes/about";
 import Nav from "./components/Nav";
-import lang from "~/assets/lang.json";
 
 function App() {
   const [imgRef, setImgRef] = createSignal<HTMLImageElement>();
@@ -96,10 +95,10 @@ function App() {
           title: (
             <Show
               when={!canProceed()}
-              fallback={<h1 class="font-bold">{lang.complete_process.eng}</h1>}
+              fallback={<h1 class="font-bold">Complete</h1>}
             >
               <div class="flex w-full">
-                <h3>{lang.processing.eng}</h3> <Spinner width="4" height="4" />
+                <h3>Processing...</h3> <Spinner width="4" height="4" />
               </div>
             </Show>
           ),
@@ -267,33 +266,13 @@ function App() {
                     <p class="w-fit truncate">{wtrLoc()}</p>
                   </div>
                 </div>
-        <div class="flex h-1/3 w-full flex-col items-center justify-center space-y-3">
-          <div class="flex w-full items-center justify-between space-x-4 py-4 lg:px-10">
-            <div class="flex w-1/2">
-              <Button
-                class="w-1/3 rounded-r-none border text-xs md:text-sm"
-                onClick={() =>
-                  openImage(setBaseLoc, setImageBg, setFolderSrc, "base")
-                }
-              >
-                {lang.open_img.eng}
-              </Button>
-              <div class="flex w-2/3 items-center rounded-r-lg bg-white py-1 text-start text-gray-800">
-                <p class="w-fit truncate">{folderSrc()}</p>
               </div>
 
-            <div class="flex w-1/2">
-              <Button
-                class="w-1/3 rounded-r-none border text-xs md:text-sm"
-                onClick={() =>
-                  openImage(setWtrLoc, setWaterImg, setFolderSrc, "watermark")
-                }
-                disabled={imageBg().length === 0}
-              >
-                {lang.open_watermark.eng}
-              </Button>
-              <div class="flex w-2/3 items-center rounded-r-md bg-white py-1 text-start text-gray-800">
-                <p class="w-fit truncate">{wtrLoc()}</p>
+              <div class="mx-auto my-4 flex items-center justify-center space-x-2">
+                <Checkbox checked={applyFolder()} onChange={setApplyFolder} />
+                <h3 class="m-auto select-none">
+                  Apply to all image in folder ?
+                </h3>
               </div>
 
               <div class="pt-4">
@@ -325,35 +304,6 @@ function App() {
             <About />
           </Match>
         </Switch>
-          <div class="mx-auto my-4 flex items-center justify-center space-x-2">
-            <Checkbox checked={applyFolder()} onChange={setApplyFolder} />
-            <h3 class="m-auto select-none">{lang.apply_folder.eng}</h3>
-          </div>
-
-          <div class="pt-4">
-            <Show
-              when={canProceed()}
-              fallback={
-                <Button
-                  variant="secondary"
-                  onClick={sendData}
-                  disabled={!canProceed()}
-                  class="h-12 border border-neutral-200 bg-transparent px-6 text-neutral-600"
-                >
-                  {lang.proceed.eng}
-                </Button>
-              }
-            >
-              <button
-                onClick={sendData}
-                disabled={!canProceed()}
-                class="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-md border border-neutral-200 bg-transparent px-6 font-medium text-neutral-200 transition-all duration-100 [box-shadow:5px_5px_rgb(82_82_82)] active:translate-x-[3px] active:translate-y-[3px] active:[box-shadow:0px_0px_rgb(82_82_82)]"
-              >
-                {lang.proceed.eng}
-              </button>
-            </Show>
-          </div>
-        </div>
       </div>
 
       <Show when={waterImg().length > 0}>
