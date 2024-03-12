@@ -30,5 +30,53 @@
   "proceed": {
     "eng": "Proceed",
     "ind": "Mulai Proses Watermark"
+  },
+  "about": {
+    "title": {
+      "eng": "About Us",
+      "ind": "Tentang Kami"
+    },
+    "h3": {
+      "eng": "Indonesian Made Software",
+      "ind": "Software Buatan Indonesia"
+    }
+  },
+  "error_msg": {
+    "error_base": {
+      "title": {
+        "eng": "Error: No Base Image",
+        "ind": "Error: Gambar belum termuat"
+      },
+      "descriptions": {
+        "eng": "Please upload base image",
+        "ind": "Harap gambar dimuat"
+      }
+    },
+    "error_watermark": {
+      "title": {
+        "eng": "Error: No Watermark Image",
+        "ind": "Error: Gambar watermark belum termuat"
+      },
+      "descriptions": {
+        "eng": "Please upload watermark image",
+        "ind": "Harap gambar watermark dimuat"
+      }
+    },
+    "error_something": {
+      "title": {
+        "eng": "Error: Something Went Wrong",
+        "ind": "Telah terjadi Error"
+      }
+    }
+  },
+  "finished": {
+    "title": {
+      "eng": "Finished in",
+      "ind": "Proses Selesai Dalam Waktu"
+    },
+    "descriptions": {
+      "eng": "Open folder at",
+      "ind": "Buka folder di"
+    }
   }
 }
